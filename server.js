@@ -1,7 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-// const { sequelize } = require('./models/User'); // Assuming you have Sequelize configured for SQL database
 const authRoutes = require('./router/authRouter');
 
 const app = express();
