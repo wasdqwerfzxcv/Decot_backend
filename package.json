@@ -19,6 +19,9 @@
     "mysql2": "^3.3.3",
     "pg": "^8.11.0",
     "react-google-login": "^5.2.2",
-    "sequelize": "^6.32.0"
+    "sequelize": "^6.32.0",
+    "sequelize-cli": "^6.6.1",
+    "socket.io": "^4.6.2",
+    "tedious": "^16.1.0"
   }
 }
