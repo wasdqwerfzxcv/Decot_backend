@@ -10,9 +10,24 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      User.hasMany(models.Workspace, { 
+        as: 'ownedWorkspaces',
+        foreignKey: 'mentorId'
+       });
+       
+      User.hasMany(models.Notification, { 
+        as: 'notifications', 
+        foreignKey: 'userId' 
+      });
+
+      User.belongsToMany(models.Workspace, {
+        through: 'WorkspaceMembers',
+        as: 'workspaces',
+        foreignKey: 'userId' // specify the exact foreign key to use
+      });
     }
   }
+
   User.init({
     username: DataTypes.STRING,
     email: DataTypes.STRING,
