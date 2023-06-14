@@ -50,10 +50,13 @@ const loginUser = async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // // Generate JWT token
-    const token = jwt.sign({ userId: user.id }, 'your-secret-key', { expiresIn: '1h' });
+    // Generate JWT token
+    const token = jwt.sign({ userId: user.id, role: user.role }, 'your-secret-key', { expiresIn: '1h' });
 
-    return res.status(200).json({ token });
+    // Exclude the password from the user object before sending it
+    const userResponse = { ...user.get(), password: undefined };
+
+    return res.status(200).json({ token, user: userResponse });
   } catch (error) {
     console.error('Failed to login user:', error);
     return res.status(500).json({ error: 'Failed to login user' });
