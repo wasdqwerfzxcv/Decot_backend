@@ -52,3 +52,10 @@ exports.deleteMessage = async (req,res)=>{
         res.status(500).json({ error: 'Error occured while deleting the message' });
     }
 };
+
+module.exports={
+    createMessage,
+    getAllMessages,
+    updateMessage,
+    deleteMessage,
+};

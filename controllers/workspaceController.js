@@ -78,11 +78,102 @@ const getWorkspaceById = async (req, res) => {
   }
 };
 
+const updateWorkspace = async (req, res) => {
+  try {
+    const workspaceId = req.params.workspaceId;
+    const { name, description } = req.body;
+    
+    const workspace = await Workspace.findByPk(workspaceId);
 
+    if (!workspace) {
+      return res.status(404).json({ error: 'Workspace not found' });
+    }
+
+    workspace.name = name;
+    workspace.description = description;
+    await workspace.save();
+
+    res.json({ workspace });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const deleteWorkspace = async (req, res) => {
+  try {
+    const workspaceId = req.params.workspaceId;
+
+    const workspace = await Workspace.findByPk(workspaceId);
+
+    if (!workspace) {
+      return res.status(404).json({ error: 'Workspace not found' });
+    }
+
+    await workspace.destroy();
+
+    res.json({ message: 'Workspace deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getWorkspaceMembers = async (req, res) => {
+  console.log("getWorkspaceMembers function called");
+  try {
+    const workspaceId = req.params.workspaceId;
+    
+    const workspace = await Workspace.findByPk(workspaceId, {
+      include: [
+        {
+          model: User,
+          as: 'members',
+          attributes: ['id', 'username', 'email'],
+          through: { attributes: [] } // Hide the join table
+        }
+      ]
+    });
+
+    if (!workspace) {
+      return res.status(404).json({ error: 'Workspace not found' });
+    }
+    console.log("Workspace data: ", JSON.stringify(workspace, null, 2));
+    console.log("got come here?  " + workspace.members);
+    res.status(200).json(workspace.members);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const removeWorkspaceMember = async (req, res) => {
+  try {
+    const workspaceId = req.params.workspaceId;
+    const userId = req.params.userId;
+
+    const workspace = await Workspace.findByPk(workspaceId);
+    if (!workspace) {
+      return res.status(404).json({ error: 'Workspace not found' });
+    }
+
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    await workspace.removeMember(user);
+
+    res.status(200).json({ message: 'Member removed successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 module.exports = {
   createWorkspace,
   joinWorkspace,
   getWorkspaces,
   getWorkspaceById,
+  updateWorkspace,
+  deleteWorkspace,
+  getWorkspaceMembers,
+  removeWorkspaceMember,
 };

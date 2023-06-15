@@ -27,13 +27,3 @@ app.use('/workspace', authenticate, workspaceRoutes);
  server = app.listen(PORT, async()=>{
   console.log(`Server is running on port ${PORT}`);
 });
-
-//for chat
-const io = socket(server);
-io.on('connection', (socket) =>{
-  console.log(socket.id);
-
-  socket.on('SEND_MESSAGE', function(data){
-    io.emit('RECEIVE_MESSAGE', data);
-  });
-});
