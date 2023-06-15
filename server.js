@@ -3,6 +3,8 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const authenticate = require('./middlewares/authenticate'); 
 const authRoutes = require('./router/authRouter');
+const messageRoutes = require('./router/messageRouter');
+const socket = require('socket.io');
 const workspaceRoutes = require('./router/workspaceRouter');
 
 
@@ -18,9 +20,10 @@ app.use(bodyParser.json());
 
 app.use('/auth',authRoutes);
 app.use('/workspace', authenticate, workspaceRoutes);
+app.use('/message', messageRoutes )
 
 app.use('/workspace', authenticate, workspaceRoutes);
 
- server = app.listen(PORT, function(){
+ server = app.listen(PORT, async()=>{
   console.log(`Server is running on port ${PORT}`);
 });

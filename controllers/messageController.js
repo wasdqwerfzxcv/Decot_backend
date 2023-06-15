@@ -1,10 +1,9 @@
-const express = require('express');
-const Message = require('../model/ChatMessage');
+const Message = require('../models/ChatMessage');
 
-const createMessage = async(req, res)=>{
+exports.createMessage = async(req, res)=>{
     try{
-        const {author, message } = req.body;
-        const newMessage = await Message.create({ author, message });
+        const {author, message, timestamp } = req.body;
+        const newMessage = await Message.create({ author, message, timestamp });
         res.status(201).json(newMessage);
     }catch(error){
         console.error('Error creating message: ', error);
@@ -12,7 +11,7 @@ const createMessage = async(req, res)=>{
     }
 };
 
-const getAllMessages = async (req,res)=>{
+exports.getAllMessages = async (req,res)=>{
     try{
         const messages = await Message.findAll();
         res.json(messages);
@@ -22,7 +21,7 @@ const getAllMessages = async (req,res)=>{
     }
 };
 
-const updateMessage = async (req,res)=>{
+exports.updateMessage = async (req,res)=>{
     try{
         const { id }=req.params;
         const { message }=req.body;
@@ -39,7 +38,7 @@ const updateMessage = async (req,res)=>{
     }
 };
 
-const deleteMessage = async (req,res)=>{
+exports.deleteMessage = async (req,res)=>{
     try{
         const { id }=req.params;
         const messageToDelete=await Message.findByPk(id);
