@@ -3,9 +3,7 @@ const { User } = require('../models');
 const jwt = require('jsonwebtoken');
 
 const registerUser = async (req, res) => {
-  console.log('Register route hit');
   const { username, email, password, role } = req.body;
-  console.log(req.body);
 
   try {
     // Check if user already exists
@@ -33,8 +31,6 @@ const registerUser = async (req, res) => {
 };
 
 const loginUser = async (req, res) => {
-  console.log('Login route hit');
-  console.log(req.body);
   const { email, password } = req.body;
 
   try {
