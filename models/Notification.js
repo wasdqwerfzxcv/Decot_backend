@@ -11,9 +11,18 @@ class Notification extends Model {
   }
   
   Notification.init({
-    userId: DataTypes.INTEGER,
-    content: DataTypes.STRING,
-    // Other fields for notifications
+    content: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    read: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
   }, {
     sequelize,
     modelName: 'Notification',

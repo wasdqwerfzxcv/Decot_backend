@@ -1,5 +1,7 @@
 const crypto = require('crypto');
-const { Workspace, User } = require('../models');
+const { Workspace, User, Notification } = require('../models');
+const { getIoInstance } = require('../sockets/socketIoInstance');
+const { getSocketIdByUserId } = require('../sockets/socketManager');
 
 const createWorkspace = async (req, res) => {
   try {
@@ -22,7 +24,7 @@ const createWorkspace = async (req, res) => {
 const joinWorkspace = async (req, res) => {
   try {
     const { token } = req.body;
-    
+    const io = getIoInstance();
     const workspace = await Workspace.findOne({ where: { joinToken: token } });
 
     if (!workspace) {
@@ -34,6 +36,16 @@ const joinWorkspace = async (req, res) => {
 
     // Add user to workspace members here
     await workspace.addMembers(user);
+
+    // Save notification in the database
+    const notification = await Notification.create({
+      content: `${user.username} joined your ${workspace.name} workspace`,
+      userId: workspace.mentorId,
+    });
+
+    const mentorSocketId = getSocketIdByUserId(String(workspace.mentorId));
+
+    io.to(mentorSocketId).emit('notification', notification);
 
     res.json({ message: 'Joined workspace' });
   } catch (error) {
@@ -51,7 +63,6 @@ const getWorkspaces = async (req, res) => {
         where: { mentorId: userId },
       });
     } else {
-      // Retrieve workspaces that mentee has joined
       const user = await User.findByPk(userId, { include: [{ model: Workspace, as: 'workspaces' }] });
       workspaces = user.workspaces;
     }
@@ -118,7 +129,6 @@ const deleteWorkspace = async (req, res) => {
 };
 
 const getWorkspaceMembers = async (req, res) => {
-  console.log("getWorkspaceMembers function called");
   try {
     const workspaceId = req.params.workspaceId;
     
@@ -136,8 +146,6 @@ const getWorkspaceMembers = async (req, res) => {
     if (!workspace) {
       return res.status(404).json({ error: 'Workspace not found' });
     }
-    console.log("Workspace data: ", JSON.stringify(workspace, null, 2));
-    console.log("got come here?  " + workspace.members);
     res.status(200).json(workspace.members);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -148,6 +156,7 @@ const removeWorkspaceMember = async (req, res) => {
   try {
     const workspaceId = req.params.workspaceId;
     const userId = req.params.userId;
+    const io = getIoInstance();
 
     const workspace = await Workspace.findByPk(workspaceId);
     if (!workspace) {
@@ -160,6 +169,17 @@ const removeWorkspaceMember = async (req, res) => {
     }
 
     await workspace.removeMember(user);
+
+    // Save notification in the database
+    const notification = await Notification.create({
+      content: `You have been removed from ${workspace.name} workspace`,
+      userId: user.id,
+    });
+
+
+    // Emit notification to mentee using getSocketIdByUserId
+    const menteeSocketId = getSocketIdByUserId(userId);
+    io.to(menteeSocketId).emit('notification', notification);
 
     res.status(200).json({ message: 'Member removed successfully' });
   } catch (error) {
