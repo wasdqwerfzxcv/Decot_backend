@@ -37,11 +37,15 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    // Other fields as required
     joinToken: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true
+    },
+    color: { // <-- Add this field
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: '#000000' // default color, could be anything
     },
   }, {
     sequelize,

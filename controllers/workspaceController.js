@@ -5,13 +5,14 @@ const { getSocketIdByUserId } = require('../sockets/socketManager');
 
 const createWorkspace = async (req, res) => {
   try {
-    const { name, description } = req.body;
+    const { name, description,color } = req.body;
     const joinToken = crypto.randomBytes(4).toString('hex'); // This will generate a shorter random string
     
     const workspace = await Workspace.create({
       name,
       description,
       joinToken,
+      color,
       mentorId: req.user.id // assuming you have middleware to authenticate user
     });
 
@@ -39,7 +40,7 @@ const joinWorkspace = async (req, res) => {
 
     // Save notification in the database
     const notification = await Notification.create({
-      content: `${user.username} joined your ${workspace.name} workspace`,
+      content: `${user.username} has joined your ${workspace.name} workspace`,
       userId: workspace.mentorId,
     });
 
@@ -187,6 +188,40 @@ const removeWorkspaceMember = async (req, res) => {
   }
 };
 
+const leaveWorkspace = async (req, res) => {
+  try {
+    const workspaceId = req.params.workspaceId;
+    const userId = req.user.id;
+    const io = getIoInstance();
+
+    const workspace = await Workspace.findByPk(workspaceId);
+    if (!workspace) {
+      return res.status(404).json({ error: 'Workspace not found' });
+    }
+
+    const mentor = await User.findByPk(workspace.mentorId); // assuming workspace has mentorId field
+    if (!mentor) {
+      return res.status(404).json({ error: 'Mentor not found' });
+    }
+
+    await workspace.removeMember(userId);
+
+    const user = await User.findByPk(req.user.id);
+
+    const notification = await Notification.create({
+      content: `${user.username} has left your ${workspace.name} workspace`,
+      userId: mentor.id,
+    });
+
+    const mentorSocketId = getSocketIdByUserId(String(mentor.id));
+    io.to(mentorSocketId).emit('notification', notification);
+
+    res.status(200).json({ message: 'Left workspace successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   createWorkspace,
   joinWorkspace,
@@ -196,4 +231,5 @@ module.exports = {
   deleteWorkspace,
   getWorkspaceMembers,
   removeWorkspaceMember,
+  leaveWorkspace,
 };
