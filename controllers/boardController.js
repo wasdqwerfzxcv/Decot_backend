@@ -110,63 +110,13 @@ const deleteBoard = async (req, res) => {
       return res.status(404).json({ error: 'Board not found' });
     }
 
-    await workspace.destroy();
+    await board.destroy();
 
     res.json({ message: 'Board deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
-
-// const getBoardMembers = async (req, res) => {
-//   console.log("getBoardMembers function called");
-//   try {
-//     const boardId = req.params.boardId;
-    
-//     const board = await Board.findByPk(boardId, {
-//       include: [
-//         {
-//           model: User,
-//           as: 'members',
-//           attributes: ['id', 'username', 'email'],
-//           through: { attributes: [] } // Hide the join table
-//         }
-//       ]
-//     });
-
-//     if (!board) {
-//       return res.status(404).json({ error: 'Board not found' });
-//     }
-//     console.log("Board data: ", JSON.stringify(board, null, 2));
-//     console.log("got come here?  " + board.members);
-//     res.status(200).json(board.members);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
-
-// const removeBoardMember = async (req, res) => {
-//   try {
-//     const boardId = req.params.boardId;
-//     const userId = req.params.userId;
-
-//     const board = await Board.findByPk(boardId);
-//     if (!board) {
-//       return res.status(404).json({ error: 'Board not found' });
-//     }
-
-//     const user = await User.findByPk(userId);
-//     if (!user) {
-//       return res.status(404).json({ error: 'User not found' });
-//     }
-
-//     await board.removeMember(user);
-
-//     res.status(200).json({ message: 'Member removed successfully' });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
 
 const saveBoard = async (req, res) => {
   try {

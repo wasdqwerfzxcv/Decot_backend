@@ -6,6 +6,7 @@ const authRoutes = require('./router/authRouter');
 const messageRoutes = require('./router/messageRouter');
 const workspaceRoutes = require('./router/workspaceRouter');
 const notificationRoutes = require('./router/notificationRouter');
+const boardRoutes = require('./router/boardRouter');
 
 const app = express();
 const server = require('http').createServer(app);
@@ -29,7 +30,8 @@ app.use(bodyParser.json());
 
 app.use('/auth',authRoutes);
 app.use('/workspace', authenticate, workspaceRoutes);
-app.use('/message', messageRoutes )
+app.use('/board', authenticate, boardRoutes);
+app.use('/message', authenticate, messageRoutes )
 app.use('/notification', authenticate, notificationRoutes);
 
 server.listen(PORT, async()=>{
