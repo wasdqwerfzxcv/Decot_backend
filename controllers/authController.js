@@ -47,7 +47,7 @@ const loginUser = async (req, res) => {
     }
 
     // Generate JWT token
-    const token = jwt.sign({ userId: user.id, role: user.role }, 'your-secret-key', { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user.id, role: user.role }, 'your-secret-key', { expiresIn: '2h' });
 
     // Exclude the password from the user object before sending it
     const userResponse = { ...user.get(), password: undefined };
