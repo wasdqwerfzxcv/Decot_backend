@@ -1,6 +1,9 @@
 const bcrypt = require('bcrypt');
 const { User } = require('../models');
 const jwt = require('jsonwebtoken');
+const passport = require('passport');
+const secretKey = process.env.JWT_SECRET_KEY;
+const callbackRedirectUrl = process.env.GOOGLE_CALLBACK_REDIRECT_URL;
 
 const registerUser = async (req, res) => {
   const { username, email, password, role } = req.body;
@@ -47,7 +50,7 @@ const loginUser = async (req, res) => {
     }
 
     // Generate JWT token
-    const token = jwt.sign({ userId: user.id, role: user.role }, 'your-secret-key', { expiresIn: '2h' });
+    const token = jwt.sign({ userId: user.id, role: user.role }, secretKey, { expiresIn: '2h' });
 
     // Exclude the password from the user object before sending it
     const userResponse = { ...user.get(), password: undefined };
@@ -59,7 +62,46 @@ const loginUser = async (req, res) => {
   }
 };
 
+const googleLogin = passport.authenticate('google', {
+  scope: ['profile', 'email']
+});
+
+const googleCallback = (req, res, next) => {
+  passport.authenticate('google', { session: false }, async(err, user) => {
+    if (err) {
+      return res.status(500).json({ error: 'Failed to authenticate using Google' });
+    }
+    if (!user) {
+      return res.redirect('/login');
+    }
+    const token = jwt.sign({ userId: user.id, role: user.role }, secretKey, { expiresIn: '2h' });
+    const redirectUrl = `${callbackRedirectUrl}?token=${token}&user=${JSON.stringify(user)}`;
+    
+    return res.redirect(redirectUrl);
+  })(req, res, next);
+};
+
+const updateUserRole = async (req, res) => {
+  const { email, role } = req.body;
+
+  try {
+      const user = await User.findOne({ where: { email } });
+      if (!user) {
+          return res.status(404).json({ error: 'User not found' });
+      }
+      console.log(user)
+      await user.update({ role: role });
+      return res.status(200).json({ message: 'User role updated successfully' });
+  } catch (error) {
+      console.error('Failed to update user role:', error);
+      return res.status(500).json({ error: 'Failed to update user role' });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
+  googleLogin,
+  googleCallback,
+  updateUserRole,
 };

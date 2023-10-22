@@ -1,10 +1,11 @@
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
+const secretKey = process.env.JWT_SECRET_KEY;
 
 const authenticate = async (req, res, next) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
-    const decoded = jwt.verify(token, 'your-secret-key');
+    const decoded = jwt.verify(token, secretKey);
     const user = await User.findByPk(decoded.userId);
     if (!user) {
       throw new Error('No user found');
