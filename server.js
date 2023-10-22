@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -6,6 +7,7 @@ const authRoutes = require('./router/authRouter');
 const messageRoutes = require('./router/messageRouter');
 const workspaceRoutes = require('./router/workspaceRouter');
 const notificationRoutes = require('./router/notificationRouter');
+const passport = require('./config/passport');
 const boardRoutes = require('./router/boardRouter');
 
 const app = express();
@@ -27,6 +29,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
+app.use(passport.initialize());
 
 app.use('/auth',authRoutes);
 app.use('/workspace', authenticate, workspaceRoutes);
