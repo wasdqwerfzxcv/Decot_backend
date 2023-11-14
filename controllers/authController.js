@@ -6,6 +6,7 @@ const secretKey = process.env.JWT_SECRET_KEY;
 const callbackRedirectUrl = process.env.GOOGLE_CALLBACK_REDIRECT_URL;
 const AWS = require('aws-sdk');
 const s3 = new AWS.S3();
+const { v4: uuidv4 } = require('uuid');
 
 const registerUser = async (req, res) => {
   const { username, email, password, role } = req.body;
@@ -177,9 +178,10 @@ const deleteAccount = async (req, res) => {
 };
 
 const uploadToS3 = async (file) => {
+  const uniqueFilename = `${uuidv4()}-${file.originalname}`;
   const params = {
     Bucket: process.env.AWS_BUCKET_NAME,
-    Key: `profile-pics/${file.originalname}`,
+    Key: `profile-pics/${uniqueFilename}`,
     Body: file.buffer,
     ContentType: file.mimetype
   };

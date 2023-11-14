@@ -28,6 +28,7 @@
     "sequelize": "^6.32.0",
     "sequelize-cli": "^6.6.1",
     "socket.io": "^4.6.2",
-    "tedious": "^16.1.0"
+    "tedious": "^16.1.0",
+    "uuid": "^9.0.1"
   }
 }
