@@ -15,11 +15,13 @@ module.exports = (sequelize, DataTypes) => {
         as: 'mentor', 
         foreignKey: 'mentorId' });
         
-      Workspace.belongsToMany(models.User, {
-        through: 'WorkspaceMembers',
-        as: 'members',
-        foreignKey: 'workspaceId'
+        Workspace.belongsToMany(models.User, {
+          through: 'WorkspaceMembers',
+          as: 'members',
+          foreignKey: 'workspaceId', // Key in Workspace model
+          otherKey: 'userId' // Key in User model
       });
+      
       Workspace.hasMany(models.Board, { as: 'boards' });
 
       Workspace.hasMany(models.Message, { as: 'messages' });
