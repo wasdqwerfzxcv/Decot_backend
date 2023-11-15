@@ -1,7 +1,7 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
+const bcrypt = require('bcrypt');
+
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     /**
@@ -26,6 +26,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'workspaceId' // specify the exact foreign key to use
       });
     }
+
+    async comparePassword(candidatePassword) {
+      return bcrypt.compare(candidatePassword, this.password);
+    }
   }
 
   User.init({
@@ -34,9 +38,27 @@ module.exports = (sequelize, DataTypes) => {
     password: DataTypes.STRING,
     role: DataTypes.STRING,
     registeredVia: DataTypes.STRING,
+    lastAccessed: DataTypes.DATE,
+    status: DataTypes.STRING,      
+    expertise: DataTypes.STRING,   
+    profilePic: DataTypes.STRING, 
   }, {
     sequelize,
     modelName: 'User',
+    hooks: {  // Add these hooks
+      beforeCreate: async (user) => {
+        if (user.password) {
+          const salt = await bcrypt.genSalt(10); //"salt" is a random value that is combined with a password before the password is hashed
+          user.password = await bcrypt.hash(user.password, salt); // ensure that the same password will produce different hash values when hashed with different salts. 
+        }
+      },
+      beforeUpdate: async (user) => {
+        if (user.changed('password')) {
+          const salt = await bcrypt.genSalt(10);
+          user.password = await bcrypt.hash(user.password, salt);
+        }
+      }
+    }
   });
   return User;
 };
