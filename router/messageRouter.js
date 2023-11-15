@@ -2,10 +2,10 @@ const express = require('express');
 const router = express.Router();
 const messageController = require('../controllers/messageController');
 // Create a new message
-router.post('/create', messageController.createMessage);
+router.post('/:workspaceId/create', messageController.createMessage);
 
 // Retrieve all messages
-router.get('/list', messageController.getAllMessages);
+router.get('/:workspaceId/list', messageController.getAllMessages);
 
 // Delete a message
 router.delete('/:messageId', messageController.deleteMessage);

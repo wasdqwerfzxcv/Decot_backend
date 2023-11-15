@@ -4,12 +4,12 @@ const boardController = require('../controllers/boardController');
 //const multer = require('multer');
 //const upload = multer({ dest: 'uploads/' });
 
-router.post('/create', boardController.createBoard);
+router.post('/workspace/:workspaceId/create', boardController.createBoard);
 router.post('/join', boardController.joinBoard);
-router.get('/', boardController.getBoards);
-router.get('/:boardId', boardController.getBoardById);
-router.put('/:boardId', boardController.updateBoard);
-router.delete('/:boardId', boardController.deleteBoard);
+router.get('/workspace/:workspaceId', boardController.getBoards);
+router.get('/workspace/:workspaceId/board/:boardId', boardController.getBoardById);
+router.put('/workspace/:workspaceId/board/:boardId', boardController.updateBoard);
+router.delete('/workspace/:workspaceId/board/:boardId', boardController.deleteBoard);
 //router.post('/upload', board.Controller.uploadImage);
 //router.get('/image', boardController.retrieveImage);
 

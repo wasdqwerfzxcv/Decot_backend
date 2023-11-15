@@ -20,6 +20,12 @@ module.exports = (sequelize, DataTypes) => {
         as: 'members',
         foreignKey: 'boardId' //amend
       });
+
+      Board.belongsTo(models.Workspace, {
+        as: 'workspace', 
+        foreignKey: 'workspaceId', 
+        //targetKey: 'id' 
+      });
     }
   }
 
@@ -43,6 +49,11 @@ module.exports = (sequelize, DataTypes) => {
     mentorId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+    },
+    workspaceId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      field: 'workspaceId'
     },
     //diagram: {
         //type: DataTypes.BLOB,

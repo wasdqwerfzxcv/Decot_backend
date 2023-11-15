@@ -4,33 +4,22 @@ const {
 } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-  class Message extends Model {
+  class Canvas extends Model {
     static associate(models) {
-      Message.belongsTo(models.User,{
+      Canvas.belongsTo(models.User,{
         foreignKey: 'userId',
         onDelete: 'CASCADE'
       });
-
-      Message.belongsTo(models.Workspace, {
-        as: 'workspace', 
-        foreignKey: 'workspaceId', 
-        //targetKey: 'id' 
-      });
     }
   }
-  Message.init({
-    message:{
+  Canvas.init({
+    canvas:{
       type: DataTypes.STRING, 
-      allowNull: false, 
+      allowNull: true, 
     },
     userId:{
       type: DataTypes.INTEGER, 
       allowNull: false, 
-    },
-    workspaceId:{
-      type: DataTypes.INTEGER, 
-      allowNull: false, 
-      field: 'workspaceId'
     },
     timestamp:{
       type: DataTypes.DATE, 
@@ -39,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
     },
   }, {
     sequelize,
-    modelName: 'Message',
+    modelName: 'Canvas',
   });
-  return Message;
+  return Canvas;
 };
