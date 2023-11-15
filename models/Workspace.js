@@ -20,7 +20,9 @@ module.exports = (sequelize, DataTypes) => {
         as: 'members',
         foreignKey: 'workspaceId'
       });
-      // Workspace.hasMany(models.Board, { as: 'boards' });
+      Workspace.hasMany(models.Board, { as: 'boards' });
+
+      Workspace.hasMany(models.Message, { as: 'messages' });
     }
   }
 

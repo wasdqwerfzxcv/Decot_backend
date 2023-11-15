@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
       User.belongsToMany(models.Workspace, {
         through: 'WorkspaceMembers',
         as: 'workspaces',
-        foreignKey: 'userId' // specify the exact foreign key to use
+        foreignKey: 'workspaceId' // specify the exact foreign key to use
       });
     }
 
