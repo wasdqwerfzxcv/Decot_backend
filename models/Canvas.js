@@ -10,21 +10,29 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'userId',
         onDelete: 'CASCADE'
       });
+      Canvas.belongsTo(models.Board,{
+        as: "board",
+        foreignKey: 'boardId',
+      });
     }
   }
   Canvas.init({
-    canvas:{
+    canvasName:{
       type: DataTypes.STRING, 
-      allowNull: true, 
+      allowNull: false, 
     },
     userId:{
       type: DataTypes.INTEGER, 
       allowNull: false, 
     },
-    timestamp:{
-      type: DataTypes.DATE, 
+    boardId:{
+      type: DataTypes.INTEGER, 
       allowNull: false, 
-      defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+      field: 'boardId',
+    },
+    canvasData:{
+      type: DataTypes.TEXT,
+      allowNull: true,
     },
   }, {
     sequelize,

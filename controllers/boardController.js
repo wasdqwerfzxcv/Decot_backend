@@ -5,7 +5,6 @@ const createBoard = async (req, res) => {
     console.log("creating board")
     const workspaceId= req.params.workspaceId;
     const { boardTitle, dtTag, deadline, description } = req.body; 
-      //let lastatime = new Date(); //simply put first
     
     const board = await Board.create({
       boardTitle,
@@ -14,7 +13,6 @@ const createBoard = async (req, res) => {
       description,
       mentorId: req.user.id,
       workspaceId: workspaceId,
-      //lastatime
     },{
       returning:['id', 'boardTitle', 'dtTag', 'deadline', 'description', 'mentorId', 'createdAt', 'updatedAt']
     });
@@ -131,28 +129,6 @@ const deleteBoard = async (req, res) => {
     await board.destroy();
 
     res.json({ message: 'Board deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-const saveBoard = async (req, res) => {
-  try {
-    const boardId = req.params.boardId;
-
-    const board = await Board.findByPk(boardId);
-    if (!board) {
-      return res.status(404).json({ error: 'Board not found' });
-    }
-
-    const user = await User.findByPk(userId);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    await board.removeMember(user);
-
-    res.status(200).json({ message: 'Member removed successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

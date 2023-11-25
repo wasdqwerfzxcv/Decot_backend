@@ -8,6 +8,6 @@ router.post('/:workspaceId/create', messageController.createMessage);
 router.get('/:workspaceId/list', messageController.getAllMessages);
 
 // Delete a message
-router.delete('/:messageId', messageController.deleteMessage);
+router.delete('/:workspaceId/:messageId', messageController.deleteMessage);
 
 module.exports = router;

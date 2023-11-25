@@ -26,6 +26,8 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'workspaceId', 
         //targetKey: 'id' 
       });
+
+      Board.hasMany(models.Canvas, { as: 'canvases' });
     }
   }
 

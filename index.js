@@ -23,7 +23,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("send_message", (data) => {
-    socket.to(data.room).emit("receive_message", data);
+    console.log('Received message: ', data);
+    io.emit("receive_message", data);
   });
 
   socket.on("disconnect", () => {
