@@ -6,14 +6,17 @@ const { getSocketIdByUserId } = require('../sockets/socketManager');
 const createWorkspace = async (req, res) => {
   try {
     const { name, description,color } = req.body;
-    const joinToken = crypto.randomBytes(4).toString('hex'); // This will generate a shorter random string
+    const joinToken = crypto.randomBytes(4).toString('hex');
+    const baseUrl = 'http://localhost:3000';
+    const inviteLink = `${baseUrl}/join/${joinToken}`;
     
     const workspace = await Workspace.create({
       name,
       description,
       joinToken,
       color,
-      mentorId: req.user.id // assuming you have middleware to authenticate user
+      inviteLink,
+      mentorId: req.user.id
     });
 
     res.status(201).json({ workspace });
@@ -48,7 +51,7 @@ const joinWorkspace = async (req, res) => {
 
     io.to(mentorSocketId).emit('notification', notification);
 
-    res.json({ message: 'Joined workspace' });
+    res.json({ message: 'Joined workspace' , workspaceId: workspace.id });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
