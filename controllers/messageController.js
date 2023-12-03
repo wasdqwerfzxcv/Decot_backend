@@ -1,4 +1,5 @@
 const { Message } = require('../models');
+const { io }=require('../sockets')
 
 const createMessage = async(req, res)=>{
     try{
@@ -13,6 +14,7 @@ const createMessage = async(req, res)=>{
         },{
             returning:['id', 'message', 'userId', 'timestamp', 'createdAt', 'updatedAt', 'workspaceId']
         });
+        //io.emit('send_message', msg)
         console.log(msg, workspaceId)
         res.status(201).json({msg});
     }catch(error){
@@ -71,10 +73,16 @@ const deleteMessage = async (req,res)=>{
         const messageId = req.params.messageId;
         const workspaceId = req.params.workspaceId;
         let message;
-        message=await Message.destroy(messageId,{ 
-            where: { workspaceId: workspaceId },
-            attributes: ['id', 'message', 'userId', 'timestamp', 'createdAt', 'updatedAt', 'workspaceId']
+        message=await Message.findByPk(messageId,{
+            where:{ workspaceId: workspaceId },
+            attributes:['id', 'message', 'userId', 'timestamp', 'createdAt', 'updatedAt', 'workspaceId']
         });
+
+        if (!message) {
+            return res.status(404).json({ error: 'Message not found' });
+          }
+        await message.destroy();
+        //io.emit('message_deleted', messageId);
         res.json({ message: 'Message deleted successfully' });
     }catch(error){
         console.error('Error deleting message: ', error);

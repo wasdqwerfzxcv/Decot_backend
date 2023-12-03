@@ -1,6 +1,6 @@
 const { addUser, removeUser } = require('./socketManager');
 const { setIoInstance } = require('./socketIoInstance');
-const { User } = require('../models');
+const { User, Message } = require('../models');
 
 const setupSockets = (io) => {
   setIoInstance(io); // set the io instance
