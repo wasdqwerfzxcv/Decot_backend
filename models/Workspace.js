@@ -46,10 +46,14 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       unique: true
     },
-    color: { // <-- Add this field
+    inviteLink: { 
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    color: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: '#000000' // default color, could be anything
+      defaultValue: '#000000'
     },
   }, {
     sequelize,

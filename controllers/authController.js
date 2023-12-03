@@ -94,7 +94,7 @@ const updateUserRole = async (req, res) => {
       }
       console.log(user)
       await user.update({ role: role });
-      return res.status(200).json({ message: 'User role updated successfully' });
+      return res.status(200).json({ message: 'User role updated successfully' ,user: user });
   } catch (error) {
       console.error('Failed to update user role:', error);
       return res.status(500).json({ error: 'Failed to update user role' });
