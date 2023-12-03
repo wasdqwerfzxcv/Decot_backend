@@ -5,15 +5,17 @@ const createCanvas = async (req, res) => {
   try {
     console.log("creating canvas")
     const boardId= req.params.boardId;
+    const workspaceId= req.params.workspaceId;
     const { canvasName } = req.body; 
     
     const canvas = await Canvas.create({
       canvasName,
-
+      workspaceId: workspaceId,
       userId: req.user.id,
       boardId: boardId,
     },{
-      returning:['id', 'canvasName', 'canvasData', 'userId', 'boardId', 'createdAt', 'updatedAt']
+      
+      returning:['id', 'canvasName', 'userId', 'boardId', 'workspaceId', 'createdAt', 'updatedAt']
     });
     console.log(boardId);
     res.status(201).json({ canvas });
@@ -26,6 +28,7 @@ const getCanvases = async (req, res) => { //need modify
   try {
     //const userId = req.user.id;
     const boardId = req.params.boardId;
+    const workspaceId = req.params.workspaceId;
     console.log(boardId);
 
     if (isNaN(parseInt(boardId))) {
@@ -34,9 +37,8 @@ const getCanvases = async (req, res) => { //need modify
     let canvases;
     canvases = await Canvas.findAll({
       where: { boardId: boardId },
-      attributes: ['id', 'canvasName', 'canvasData', 'boardId', 'userId', 'createdAt', 'updatedAt']
+      attributes: ['id', 'canvasName', 'canvasData', 'boardId', 'workspaceId', 'userId', 'createdAt', 'updatedAt']
   });
-    console.log("hi are u there")
     res.json({ canvases });
   } catch (error) {
     console.error("Error fetching canvases:", error);
@@ -48,10 +50,11 @@ const getCanvasById = async (req, res) => {
   try {
     const boardId = req.params.boardId;
     const canvasId = req.params.canvasId;
+    const workspaceId = req.params.workspaceId;
     let canvas;
     canvas = await Canvas.findByPk(canvasId,{
       where: { boardId: boardId },
-      attributes: ['id', 'canvasName', 'canvasData', 'boardId', 'userId', 'createdAt', 'updatedAt']
+      attributes: ['id', 'canvasName', 'canvasData', 'boardId', 'workspaceId', 'userId', 'createdAt', 'updatedAt']
     });
 
     if (!canvas) {
@@ -68,11 +71,12 @@ const updateCanvas = async (req, res) => {
   try {
     const boardId = req.params.boardId;
     const canvasId = req.params.canvasId;
+    const workspaceId = req.params.workspaceId;
     const { canvasName } = req.body;
     let canvas;
     canvas = await Canvas.findByPk(canvasId,{
       where:{ boardId: boardId},
-      attributes: ['id', 'canvasName', 'canvasData', 'boardId', 'userId', 'createdAt', 'updatedAt']
+      attributes: ['id', 'canvasName', 'canvasData', 'boardId', 'workspaceId', 'userId', 'createdAt', 'updatedAt']
     });
 
     if (!canvas) {
@@ -92,10 +96,11 @@ const deleteCanvas = async (req, res) => {
   try {
     const canvasId = req.params.canvasId;
     const boardId = req.params.boardId;
+    const workspaceId = req.params.workspaceId;
     let canvas;
     canvas = await Canvas.findByPk(canvasId,{
       where:{ boardId: boardId },
-      attributes: ['id', 'canvasName', 'userId', 'boardId', 'createdAt', 'updatedAt']//yet to change
+      attributes: ['id', 'canvasName', 'userId', 'boardId', 'workspaceId', 'createdAt', 'updatedAt']//yet to change
     });
 
     if (!canvas) {

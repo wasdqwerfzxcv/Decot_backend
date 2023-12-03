@@ -14,6 +14,10 @@ module.exports = (sequelize, DataTypes) => {
         as: "board",
         foreignKey: 'boardId',
       });
+      Canvas.belongsTo(models.Workspace,{
+        as: "workspace",
+        foreignKey: 'workspaceId',
+      });
     }
   }
   Canvas.init({
@@ -29,6 +33,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER, 
       allowNull: false, 
       field: 'boardId',
+    },
+    workspaceId:{
+      type: DataTypes.INTEGER, 
+      allowNull: false, 
+      field: 'workspaceId',
     },
     canvasData:{
       type: DataTypes.TEXT,

@@ -22,9 +22,9 @@ io.on("connection", (socket) => {
     console.log(`User with ID: ${socket.id} joined room: ${data}`);
   });
 
-  socket.on("send_message", (data) => {
+  socket.on("chatMessage", (data) => {
     console.log('Received message: ', data);
-    io.emit("receive_message", data);
+    io.emit('messageResponse', data);
   });
 
   socket.on("disconnect", () => {

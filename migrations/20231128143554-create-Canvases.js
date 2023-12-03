@@ -26,6 +26,14 @@ module.exports = {
           key: 'id'
         }
       },
+      workspaceId:{
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Workspaces', 
+          key: 'id'
+        }
+      },
       userId: {
         type: Sequelize.INTEGER,
         allowNull: false,
