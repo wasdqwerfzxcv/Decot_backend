@@ -3,20 +3,20 @@ const { Board, User } = require('../models');
 const createBoard = async (req, res) => {
   try {
     console.log("creating board")
-    const workspaceId= req.params.workspaceId;
-    const { boardTitle, dtTag, deadline, description } = req.body; 
-    
+    const workspaceId = req.params.workspaceId;
+    const { boardTitle, dtTag, deadline, description, status } = req.body;
+
     const board = await Board.create({
       boardTitle,
       dtTag,
-      deadline, 
+      deadline,
       description,
+      status,
       mentorId: req.user.id,
       workspaceId: workspaceId,
-    },{
-      returning:['id', 'boardTitle', 'dtTag', 'deadline', 'description', 'mentorId', 'createdAt', 'updatedAt']
+    }, {
+      returning: ['id', 'boardTitle', 'dtTag', 'deadline', 'description', 'mentorId', 'workspaceId', 'createdAt', 'updatedAt', 'status']
     });
-    console.log(workspaceId);
     res.status(201).json({ board });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -55,8 +55,8 @@ const getBoards = async (req, res) => {
     let boards;
     boards = await Board.findAll({
       where: { workspaceId: workspaceId },
-      attributes: ['id', 'boardTitle', 'dtTag', 'deadline', 'description', 'mentorId', 'workspaceId', 'createdAt', 'updatedAt']
-  });
+      attributes: ['id', 'boardTitle', 'dtTag', 'deadline', 'description', 'mentorId', 'workspaceId', 'createdAt', 'updatedAt', 'status']
+    });
 
     res.json({ boards });
   } catch (error) {
@@ -70,9 +70,9 @@ const getBoardById = async (req, res) => {
     const workspaceId = req.params.workspaceId;
     const boardId = req.params.boardId;
     let board;
-    board = await Board.findByPk(boardId,{
+    board = await Board.findByPk(boardId, {
       where: { workspaceId: workspaceId },
-      attributes: ['id', 'boardTitle', 'dtTag', 'deadline', 'description', 'mentorId', 'workspaceId', 'createdAt', 'updatedAt']
+      attributes: ['id', 'boardTitle', 'dtTag', 'deadline', 'description', 'mentorId', 'workspaceId', 'createdAt', 'updatedAt', 'status']
     });
 
     if (!board) {
@@ -89,11 +89,11 @@ const updateBoard = async (req, res) => {
   try {
     const boardId = req.params.boardId;
     const workspaceId = req.params.workspaceId;
-    const { boardTitle, dtTag, deadline, description } = req.body;
+    const { boardTitle, dtTag, deadline, description, status } = req.body;
     let board;
-    board = await Board.findByPk(boardId,{
-      where:{ workspaceId: workspaceId},
-      attributes: ['id', 'boardTitle', 'dtTag', 'deadline', 'description', 'mentorId', 'workspaceId', 'createdAt', 'updatedAt']
+    board = await Board.findByPk(boardId, {
+      where: { workspaceId: workspaceId },
+      attributes: ['id', 'boardTitle', 'dtTag', 'deadline', 'description', 'mentorId', 'workspaceId', 'createdAt', 'updatedAt', 'status']
     });
 
     if (!board) {
@@ -104,6 +104,7 @@ const updateBoard = async (req, res) => {
     board.dtTag = dtTag;
     board.deadline = deadline;
     board.description = description;
+    board.status = status;
     await board.save();
 
     res.json({ board });
@@ -117,9 +118,9 @@ const deleteBoard = async (req, res) => {
     const boardId = req.params.boardId;
     const workspaceId = req.params.workspaceId;
     let board;
-    board = await Board.findByPk(boardId,{
-      where:{ workspaceId: workspaceId },
-      attributes: ['id', 'boardTitle', 'dtTag', 'deadline', 'description', 'mentorId', 'workspaceId', 'createdAt', 'updatedAt']
+    board = await Board.findByPk(boardId, {
+      where: { workspaceId: workspaceId },
+      attributes: ['id', 'boardTitle', 'dtTag', 'deadline', 'description', 'mentorId', 'workspaceId', 'createdAt', 'updatedAt', 'status']
     });
 
     if (!board) {
