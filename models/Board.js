@@ -65,6 +65,11 @@ module.exports = (sequelize, DataTypes) => {
     //     type: DataTypes.DATE,
     //     allowNull: false,
     // },
+    status: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'Incomplete'
+    },
   }, {
     sequelize,
     modelName: 'Board',
