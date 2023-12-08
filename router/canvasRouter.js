@@ -7,5 +7,6 @@ router.get('/workspace/:workspaceId/board/:boardId', canvasController.getCanvase
 router.get('/workspace/:workspaceId/board/:boardId/canvas/:canvasId', canvasController.getCanvasById);
 router.put('/workspace/:workspaceId/board/:boardId/canvas/:canvasId', canvasController.updateCanvas);
 router.delete('/workspace/:workspaceId/board/:boardId/canvas/:canvasId', canvasController.deleteCanvas);
+router.put('/workspace/:workspaceId/board/:boardId/canvas/:canvasId/update', canvasController.saveCanvasData);
 
 module.exports = router;

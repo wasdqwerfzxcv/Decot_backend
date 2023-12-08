@@ -10,6 +10,9 @@ router.get('/workspace/:workspaceId', boardController.getBoards);
 router.get('/workspace/:workspaceId/board/:boardId', boardController.getBoardById);
 router.put('/workspace/:workspaceId/board/:boardId', boardController.updateBoard);
 router.delete('/workspace/:workspaceId/board/:boardId', boardController.deleteBoard);
+router.post('/workspace/:workspaceId/board/:boardId/members/:userId', boardController.addWorkspaceMember);
+router.get('/workspace/:workspaceId/board/:boardId/members', boardController.getBoardMembers);
+router.get('/:boardId/members/:userId', boardController.checkBoardMember);
 //router.post('/upload', board.Controller.uploadImage);
 //router.get('/image', boardController.retrieveImage);
 

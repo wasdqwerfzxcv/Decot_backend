@@ -25,7 +25,15 @@ module.exports = (sequelize, DataTypes) => {
         as: 'workspaces',
         foreignKey: 'userId', // Key in User model
         otherKey: 'workspaceId' // Key in Workspace model
-    });
+      });
+
+      User.belongsToMany(models.Board, {
+        through: 'BoardMembers',
+        as: 'boards',
+        foreignKey: 'userId', // Key in User model
+        otherKey: 'boardId',// Key in Workspace model
+        onDelete: 'CASCADE'
+      });
     }
 
     async comparePassword(candidatePassword) {

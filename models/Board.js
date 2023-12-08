@@ -18,13 +18,15 @@ module.exports = (sequelize, DataTypes) => {
       Board.belongsToMany(models.User, {
         through: 'BoardMembers',
         as: 'members',
-        foreignKey: 'boardId' //amend
+        foreignKey: 'boardId', //amend
+        otherKey: 'userId',
+        onDelete: 'CASCADE'
       });
 
       Board.belongsTo(models.Workspace, {
         as: 'workspace', 
         foreignKey: 'workspaceId', 
-        //targetKey: 'id' 
+        //targetKey: 'id',
       });
 
       Board.hasMany(models.Canvas, { as: 'canvases' });
@@ -57,10 +59,6 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       field: 'workspaceId'
     },
-    //diagram: {
-        //type: DataTypes.BLOB,
-        //allowNull: false,
-    //},
     // lastatime: {
     //     type: DataTypes.DATE,
     //     allowNull: false,

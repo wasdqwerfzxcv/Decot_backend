@@ -12,6 +12,10 @@ const setupSockets = (io) => {
     // Update the user to online status and set their last accessed time
     updateUserStatus(userId, 'online');
 
+    socket.on('message', (data) => {
+      io.emit('messageResponse', data);
+    });
+
     socket.on('userAction', (data) => {
       if (data.action === 'userOnline') {
         updateUserStatus(userId, 'online');
