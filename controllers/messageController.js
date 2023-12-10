@@ -25,10 +25,10 @@ const createMessage = async(req, res)=>{
 
 const getAllMessages = async (req,res)=>{
     try{
-        const userId = req.user.id;
+        //const userId = req.user.id;
         const workspaceId = req.params.workspaceId;
         console.log(workspaceId);
-        console.log('hihi',userId)
+        //console.log('hihi',userId)
 
         if (isNaN(parseInt(workspaceId))) {
             return res.status(400).json({ error: 'Invalid workspaceId' });
@@ -36,7 +36,7 @@ const getAllMessages = async (req,res)=>{
 
         let messages;
         messages = await Message.findAll({
-            where: { userId, workspaceId: workspaceId },
+            where: { workspaceId: workspaceId },
             order: [['createdAt', 'DESC']],
             attributes: ['id', 'message', 'userId', 'timestamp', 'createdAt', 'updatedAt', 'workspaceId']
         });
