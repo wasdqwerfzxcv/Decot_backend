@@ -10,6 +10,7 @@ const notificationRoutes = require('./router/notificationRouter');
 const passport = require('./config/passport');
 const boardRoutes = require('./router/boardRouter');
 const canvasRoutes = require('./router/canvasRouter');
+const commentRoutes = require('./router/commentRouter');
 
 const app = express();
 const server = require('http').createServer(app);
@@ -46,6 +47,7 @@ app.use('/board', authenticate, boardRoutes);
 app.use('/message', authenticate, messageRoutes )
 app.use('/notification', authenticate, notificationRoutes);
 app.use('/canvas', authenticate, canvasRoutes);
+app.use('/comment', authenticate, commentRoutes);
 
 server.listen(PORT, async()=>{
   console.log(`Server is running on port ${PORT}`);
