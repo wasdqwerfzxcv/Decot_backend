@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const { Workspace, User, Notification } = require('../models');
+const { Workspace, User, Notification, Message, Canvas } = require('../models');
 const { getIoInstance } = require('../sockets/socketIoInstance');
 const { getSocketIdByUserId } = require('../sockets/socketManager');
 
@@ -123,7 +123,8 @@ const deleteWorkspace = async (req, res) => {
     if (!workspace) {
       return res.status(404).json({ error: 'Workspace not found' });
     }
-
+    await Message.destroy({ where: { workspaceId: workspaceId } });
+    await Canvas.destroy({ where: { workspaceId: workspaceId } });
     await workspace.destroy();
 
     res.json({ message: 'Workspace deleted successfully' });
