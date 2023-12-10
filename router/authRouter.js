@@ -1,5 +1,5 @@
 const express = require('express');
-const { registerUser, loginUser, googleLogin, googleCallback, updateUserRole, updateProfile, changePassword, deleteAccount, verifyEnteredPassword, uploadProfilePic} = require('../controllers/authController');
+const { registerUser, loginUser, googleLogin, googleCallback, updateUserRole, updateProfile, changePassword, deleteAccount, verifyEnteredPassword, uploadProfilePic, getUsernameById} = require('../controllers/authController');
 const { validateRegistration, validateLogin } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
@@ -17,5 +17,6 @@ router.put('/changePassword', changePassword);
 router.delete('/deleteAccount', deleteAccount);
 router.post('/verifyEnteredPassword', verifyEnteredPassword);
 router.post('/uploadProfilePic/:userId', upload.single('profilePic'), uploadProfilePic);
+router.get('/getUsername/:userId', getUsernameById);
 
 module.exports = router;

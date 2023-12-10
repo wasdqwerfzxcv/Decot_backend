@@ -218,6 +218,26 @@ const uploadProfilePic = async (req, res) => {
   }
 };
 
+const getUsernameById = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const user = await User.findOne({
+      where: { id: userId },
+      attributes: ['username']
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    return res.status(200).json({ username: user.username });
+  } catch (error) {
+    console.error('Failed to retrieve username:', error);
+    return res.status(500).json({ error: 'Failed to retrieve username' });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
@@ -229,4 +249,5 @@ module.exports = {
   deleteAccount,
   verifyEnteredPassword,
   uploadProfilePic,
+  getUsernameById,
 };

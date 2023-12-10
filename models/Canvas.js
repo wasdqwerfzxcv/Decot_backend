@@ -13,10 +13,12 @@ module.exports = (sequelize, DataTypes) => {
       Canvas.belongsTo(models.Board,{
         as: "board",
         foreignKey: 'boardId',
+        onDelete: 'CASCADE'
       });
       Canvas.belongsTo(models.Workspace,{
         as: "workspace",
         foreignKey: 'workspaceId',
+        onDelete: 'CASCADE'
       });
     }
   }
@@ -42,6 +44,7 @@ module.exports = (sequelize, DataTypes) => {
     canvasData:{
       type: DataTypes.TEXT,
       allowNull: true,
+      field: 'canvasData',
     },
   }, {
     sequelize,

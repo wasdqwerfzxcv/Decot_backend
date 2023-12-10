@@ -1,4 +1,4 @@
-const { Board, User } = require('../models');
+const { sequelize, Board, User, Canvas } = require('../models');
 
 const createBoard = async (req, res) => {
   try {
@@ -117,9 +117,28 @@ const deleteBoard = async (req, res) => {
   try {
     const boardId = req.params.boardId;
     const workspaceId = req.params.workspaceId;
+
+    await Canvas.destroy({
+      where: {boardId: boardId},
+      attributes: ['id', 'canvasName', 'canvasData', 'userId', 'boardId', 'workspaceId', 'createdAt', 'updatedAt']
+    })
+
+    await sequelize.query('DELETE FROM "BoardMembers" WHERE "boardId" = :boardId', {
+      replacements: { boardId: boardId },
+      type: sequelize.QueryTypes.DELETE
+    });
+
     let board;
-    board = await Board.findByPk(boardId, {
-      where: { workspaceId: workspaceId },
+    board = await Board.findByPk(boardId,{
+      where:{ workspaceId: workspaceId },
+      include: [
+        {
+          model: User,
+          as: 'members',
+          attributes: ['id', 'username', 'email'],
+          through: { attributes: [] } // Hide the join table
+        },
+      ],
       attributes: ['id', 'boardTitle', 'dtTag', 'deadline', 'description', 'mentorId', 'workspaceId', 'createdAt', 'updatedAt', 'status']
     });
 
@@ -128,8 +147,96 @@ const deleteBoard = async (req, res) => {
     }
 
     await board.destroy();
-
     res.json({ message: 'Board deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const addWorkspaceMember = async (req, res) => {
+  try {
+    const workspaceId = req.params.workspaceId;
+    const boardId = req.params.boardId;
+    const userId = req.params.userId;
+    console.log(boardId);
+    console.log(userId);
+    //const io = getIoInstance();
+
+    let board;
+    board = await Board.findByPk(boardId,{
+      where: { workspaceId: workspaceId },
+      attributes: ['id', 'boardTitle', 'dtTag', 'deadline', 'description', 'mentorId', 'workspaceId', 'createdAt', 'updatedAt', 'status']
+    });
+
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    console.log(user);
+
+    const data = await board.addMember(user);
+    console.log(data)
+
+    // Save notification in the database
+    // const notification = await Notification.create({
+    //   content: `You have been added to ${board.boardTitle} board`,
+    //   userId: user.id,
+    // });
+
+    // // Emit notification to mentee using getSocketIdByUserId
+    // const menteeSocketId = getSocketIdByUserId(userId);
+    // io.to(menteeSocketId).emit('notification', notification);
+
+    res.status(200).json({ message: 'Member added successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getBoardMembers = async (req, res) => {
+  try {
+    const boardId = req.params.boardId;
+    const workspaceId = req.params.workspaceId;
+    const board = await Board.findByPk(boardId, {
+      include: [
+        {
+          model: User,
+          as: 'members',
+          attributes: ['id', 'username', 'email'],
+          through: { attributes: [] } // Hide the join table
+        },
+      ],
+      where: { workspaceId: workspaceId },
+      attributes: ['id', 'boardTitle', 'dtTag', 'deadline', 'description', 'mentorId', 'workspaceId', 'createdAt', 'updatedAt', 'status']
+    });
+
+    if (!board) {
+      return res.status(404).json({ error: 'Board not found' });
+    }
+    res.status(200).json(board.members);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const checkBoardMember = async (req, res) => {
+  try {
+    const boardId = req.params.boardId;
+    const userId = req.params.userId;
+
+    const result=await sequelize.query(
+      'SELECT * FROM "BoardMembers" WHERE "boardId" = :boardId AND "userId" = :userId',
+      {
+        replacements: { boardId, userId },
+        type: sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    if (result.length > 0) {
+      res.status(200).json({ message: 'Member found successfully' });
+    }else{
+      res.status(404).json({ error: 'Member not found for the board' });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -142,4 +249,7 @@ module.exports = {
   getBoardById,
   updateBoard,
   deleteBoard,
+  addWorkspaceMember,
+  getBoardMembers,
+  checkBoardMember,
 };

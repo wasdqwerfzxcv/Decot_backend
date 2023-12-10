@@ -50,7 +50,6 @@ const getCanvasById = async (req, res) => {
   try {
     const boardId = req.params.boardId;
     const canvasId = req.params.canvasId;
-    const workspaceId = req.params.workspaceId;
     let canvas;
     canvas = await Canvas.findByPk(canvasId,{
       where: { boardId: boardId },
@@ -100,7 +99,7 @@ const deleteCanvas = async (req, res) => {
     let canvas;
     canvas = await Canvas.findByPk(canvasId,{
       where:{ boardId: boardId },
-      attributes: ['id', 'canvasName', 'userId', 'boardId', 'workspaceId', 'createdAt', 'updatedAt']//yet to change
+      attributes: ['id', 'canvasName', 'canvasData', 'userId', 'boardId', 'workspaceId', 'createdAt', 'updatedAt']//yet to change
     });
 
     if (!canvas) {
@@ -115,10 +114,36 @@ const deleteCanvas = async (req, res) => {
   }
 };
 
+const saveCanvasData = async (req, res) => {
+  try {
+    const boardId = req.params.boardId;
+    const canvasId = req.params.canvasId;
+    const workspaceId = req.params.workspaceId;
+    const xmlData = req.rawbody;
+    let canvas;
+    canvas = await Canvas.findByPk(canvasId,{
+      where:{ boardId: boardId },
+      attributes: ['id', 'canvasName', 'canvasData', 'boardId', 'workspaceId', 'userId', 'createdAt', 'updatedAt']
+    });
+
+    if (!canvas) {
+      return res.status(404).json({ error: 'Canvas not found' });
+    }
+    console.log("where");
+    canvas.canvasData = xmlData;
+    await canvas.save();
+
+    res.json({ canvas });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
     createCanvas,
     getCanvases,
     getCanvasById,
     updateCanvas,
     deleteCanvas,
+    saveCanvasData,
 };

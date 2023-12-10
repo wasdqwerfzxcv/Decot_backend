@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
+const xmlparser = require('express-xml-bodyparser');
 const cors = require('cors');
 const authenticate = require('./middlewares/authenticate'); 
 const authRoutes = require('./router/authRouter');
@@ -38,6 +39,7 @@ AWS.config.update({
 
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
+app.use(xmlparser());
 app.use(passport.initialize());
 
 app.use('/auth',authRoutes);
