@@ -142,7 +142,7 @@ const getWorkspaceMembers = async (req, res) => {
           model: User,
           as: 'members',
           attributes: ['id', 'username', 'email'],
-          through: { attributes: [] } // Hide the join table
+          through: { attributes: [] }
         }
       ]
     });
