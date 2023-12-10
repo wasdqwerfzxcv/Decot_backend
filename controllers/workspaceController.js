@@ -1,15 +1,15 @@
 const crypto = require('crypto');
-const { Workspace, User, Notification, Message, Canvas } = require('../models');
+const { Workspace, User, Notification, Message, Canvas, Board, sequelize } = require('../models');
 const { getIoInstance } = require('../sockets/socketIoInstance');
 const { getSocketIdByUserId } = require('../sockets/socketManager');
 
 const createWorkspace = async (req, res) => {
   try {
-    const { name, description,color } = req.body;
+    const { name, description, color } = req.body;
     const joinToken = crypto.randomBytes(4).toString('hex');
     const baseUrl = 'http://localhost:3000';
     const inviteLink = `${baseUrl}/join/${joinToken}`;
-    
+
     const workspace = await Workspace.create({
       name,
       description,
@@ -51,7 +51,7 @@ const joinWorkspace = async (req, res) => {
 
     io.to(mentorSocketId).emit('notification', notification);
 
-    res.json({ message: 'Joined workspace' , workspaceId: workspace.id });
+    res.json({ message: 'Joined workspace', workspaceId: workspace.id });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -97,7 +97,7 @@ const updateWorkspace = async (req, res) => {
   try {
     const workspaceId = req.params.workspaceId;
     const { name, description } = req.body;
-    
+
     const workspace = await Workspace.findByPk(workspaceId);
 
     if (!workspace) {
@@ -119,12 +119,26 @@ const deleteWorkspace = async (req, res) => {
     const workspaceId = req.params.workspaceId;
 
     const workspace = await Workspace.findByPk(workspaceId);
-
     if (!workspace) {
       return res.status(404).json({ error: 'Workspace not found' });
     }
+
     await Message.destroy({ where: { workspaceId: workspaceId } });
     await Canvas.destroy({ where: { workspaceId: workspaceId } });
+
+    const boards = await Board.findAll({
+      where: { workspaceId: workspaceId },
+      attributes: ['id', 'boardTitle', 'dtTag', 'deadline', 'description', 'mentorId', 'workspaceId', 'createdAt', 'updatedAt', 'status']
+    });
+
+    for (const board of boards) {
+      await sequelize.query('DELETE FROM "BoardMembers" WHERE "boardId" = :boardId', {
+        replacements: { boardId: board.id },
+        type: sequelize.QueryTypes.DELETE
+      });
+      await board.destroy();
+    }
+
     await workspace.destroy();
 
     res.json({ message: 'Workspace deleted successfully' });
@@ -133,10 +147,11 @@ const deleteWorkspace = async (req, res) => {
   }
 };
 
+
 const getWorkspaceMembers = async (req, res) => {
   try {
     const workspaceId = req.params.workspaceId;
-    
+
     const workspace = await Workspace.findByPk(workspaceId, {
       include: [
         {
