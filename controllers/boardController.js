@@ -158,8 +158,6 @@ const addWorkspaceMember = async (req, res) => {
     const workspaceId = req.params.workspaceId;
     const boardId = req.params.boardId;
     const userId = req.params.userId;
-    console.log(boardId);
-    console.log(userId);
     //const io = getIoInstance();
 
     let board;
@@ -219,12 +217,55 @@ const getBoardMembers = async (req, res) => {
   }
 };
 
+const deleteWorkspaceMember = async (req, res) => {
+  try {
+    const workspaceId = req.params.workspaceId;
+    const boardId = req.params.boardId;
+    const userId = req.params.userId;
+    //const io = getIoInstance();
+
+    let board;
+    board = await Board.findByPk(boardId,{
+      where: { workspaceId: workspaceId },
+      attributes: ['id', 'boardTitle', 'dtTag', 'deadline', 'description', 'mentorId', 'workspaceId', 'createdAt', 'updatedAt', 'status']
+    });
+
+    await sequelize.query('DELETE FROM "BoardMembers" WHERE "boardId" = :boardId AND "userId" = :userId', {
+      replacements: { boardId: boardId, userId: userId },
+      type: sequelize.QueryTypes.DELETE
+    });
+
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    console.log(user);
+    console.log(boardId, userId, "delete");
+    const data = await board.deleteMember(user);
+    console.log(data)
+
+    // Save notification in the database
+    // const notification = await Notification.create({
+    //   content: `You have been added to ${board.boardTitle} board`,
+    //   userId: user.id,
+    // });
+
+    // // Emit notification to mentee using getSocketIdByUserId
+    // const menteeSocketId = getSocketIdByUserId(userId);
+    // io.to(menteeSocketId).emit('notification', notification);
+
+    res.status(200).json({ message: 'Member deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 const checkBoardMember = async (req, res) => {
   try {
     const boardId = req.params.boardId;
     const userId = req.params.userId;
 
-    const result=await sequelize.query(
+    const result = await sequelize.query(
       'SELECT * FROM "BoardMembers" WHERE "boardId" = :boardId AND "userId" = :userId',
       {
         replacements: { boardId, userId },
@@ -233,9 +274,9 @@ const checkBoardMember = async (req, res) => {
     );
 
     if (result.length > 0) {
-      res.status(200).json({ message: 'Member found successfully' });
+      res.status(200).json({ isMember: true });
     }else{
-      res.status(404).json({ error: 'Member not found for the board' });
+      res.status(200).json({ isMember: false });
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -251,5 +292,6 @@ module.exports = {
   deleteBoard,
   addWorkspaceMember,
   getBoardMembers,
+  deleteWorkspaceMember,
   checkBoardMember,
 };

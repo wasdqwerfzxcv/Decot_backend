@@ -42,7 +42,7 @@ module.exports = (sequelize, DataTypes) => {
       field: 'workspaceId',
     },
     canvasData:{
-      type: DataTypes.TEXT,
+      type: DataTypes.STRING,
       allowNull: true,
       field: 'canvasData',
     },

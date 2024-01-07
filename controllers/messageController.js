@@ -1,5 +1,5 @@
-const { Message } = require('../models');
-const { io }=require('../sockets')
+const { Message, User } = require('../models');
+const { io }=require('../sockets');
 
 const createMessage = async(req, res)=>{
     try{
@@ -10,13 +10,23 @@ const createMessage = async(req, res)=>{
             message,
             userId,
             timestamp: new Date(),
-            workspaceId: workspaceId,
+            workspaceId,
         },{
             returning:['id', 'message', 'userId', 'timestamp', 'createdAt', 'updatedAt', 'workspaceId']
         });
+        const messageWithUser = await Message.findByPk(msg.id,{
+            include: [{ model: User }],
+            where:{ workspaceId: workspaceId },
+            attributes:['id', 'message', 'userId', 'timestamp', 'createdAt', 'updatedAt', 'workspaceId']
+        })
         //io.emit('send_message', msg)
-        console.log(msg, workspaceId)
-        res.status(201).json({msg});
+        console.log(msg)
+        if(messageWithUser){
+            res.status(201).json({message: messageWithUser });
+        }else{
+            res.status(404).json({ error: "Message created but not found" });
+        }
+        
     }catch(error){
         console.error('Error creating message: ', error);
         res.status(500).json({ error: error.message});
@@ -25,7 +35,7 @@ const createMessage = async(req, res)=>{
 
 const getAllMessages = async (req,res)=>{
     try{
-        //const userId = req.user.id;
+        const userId = req.user.id;
         const workspaceId = req.params.workspaceId;
         console.log(workspaceId);
         //console.log('hihi',userId)
@@ -37,9 +47,11 @@ const getAllMessages = async (req,res)=>{
         let messages;
         messages = await Message.findAll({
             where: { workspaceId: workspaceId },
-            order: [['createdAt', 'DESC']],
+            include: [{ model: User}],
+            order: [['createdAt', 'ASC']],
             attributes: ['id', 'message', 'userId', 'timestamp', 'createdAt', 'updatedAt', 'workspaceId']
         });
+
         if(messages&&messages.length>0){
             res.json({ messages });
         }else{
@@ -90,8 +102,23 @@ const deleteMessage = async (req,res)=>{
     }
 };
 
+const updateReadStatus = async (req, res) => {
+    try {
+        const messageIds = req.body.messageIds;
+        await Message.update(
+            { read: true },
+            { where: { id: messageIds } }
+        );
+        res.json({ message: 'All unread messages have been updated to READ successfully' });
+    } catch (error) {
+        console.error('Error updating read status: ', error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
 module.exports = {
     createMessage,
     getAllMessages,
-    deleteMessage
+    deleteMessage,
+    updateReadStatus
 };

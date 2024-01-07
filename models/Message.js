@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       Message.belongsTo(models.Workspace, {
         as: 'workspace', 
         foreignKey: 'workspaceId', 
-        //targetKey: 'id' 
+        targetKey: 'id',
       });
     }
   }
@@ -30,12 +30,17 @@ module.exports = (sequelize, DataTypes) => {
     workspaceId:{
       type: DataTypes.INTEGER, 
       allowNull: false, 
-      field: 'workspaceId'
+      field: 'workspaceId',
     },
     timestamp:{
       type: DataTypes.DATE, 
       allowNull: false, 
       defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+    },
+    read:{
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
   }, {
     sequelize,
