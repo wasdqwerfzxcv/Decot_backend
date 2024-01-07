@@ -1,5 +1,7 @@
-const crypto = require('crypto');
-const { Canvas, User } = require('../models');
+const { Canvas } = require('../models');
+const AWS = require('aws-sdk');
+const s3 = new AWS.S3();
+const { v4: uuidv4 } = require('uuid');
 
 const createCanvas = async (req, res) => {
   try {
@@ -24,7 +26,7 @@ const createCanvas = async (req, res) => {
   }
 };
 
-const getCanvases = async (req, res) => { //need modify
+const getCanvases = async (req, res) => {
   try {
     //const userId = req.user.id;
     const boardId = req.params.boardId;
@@ -68,13 +70,16 @@ const getCanvasById = async (req, res) => {
 
 const updateCanvas = async (req, res) => {
   try {
+    const workspaceId = req.params.workspaceId;
     const boardId = req.params.boardId;
     const canvasId = req.params.canvasId;
-    const workspaceId = req.params.workspaceId;
     const { canvasName } = req.body;
     let canvas;
     canvas = await Canvas.findByPk(canvasId,{
-      where:{ boardId: boardId},
+      where:{ 
+        boardId: boardId,
+        workspaceId: workspaceId,
+      },
       attributes: ['id', 'canvasName', 'canvasData', 'boardId', 'workspaceId', 'userId', 'createdAt', 'updatedAt']
     });
 
@@ -98,7 +103,10 @@ const deleteCanvas = async (req, res) => {
     const workspaceId = req.params.workspaceId;
     let canvas;
     canvas = await Canvas.findByPk(canvasId,{
-      where:{ boardId: boardId },
+      where:{ 
+        boardId: boardId,
+        workspaceId: workspaceId,
+      },
       attributes: ['id', 'canvasName', 'canvasData', 'userId', 'boardId', 'workspaceId', 'createdAt', 'updatedAt']//yet to change
     });
 
@@ -114,36 +122,96 @@ const deleteCanvas = async (req, res) => {
   }
 };
 
-const saveCanvasData = async (req, res) => {
+// const saveCanvasData = async (req, res) => {
+//   try {
+//     const boardId = req.params.boardId;
+//     const canvasId = req.params.canvasId;
+//     const workspaceId = req.params.workspaceId;
+//     const xmlData = req.rawbody;
+//     let canvas;
+//     canvas = await Canvas.findByPk(canvasId,{
+//       where:{ boardId: boardId },
+//       attributes: ['id', 'canvasName', 'canvasData', 'boardId', 'workspaceId', 'userId', 'createdAt', 'updatedAt']
+//     });
+
+//     if (!canvas) {
+//       return res.status(404).json({ error: 'Canvas not found' });
+//     }
+//     console.log("hi where");
+//     canvas.canvasData = xmlData;
+//     await canvas.save();
+
+//     res.json({ canvas });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+
+const uploadToCanvasS3 = async (file) => {
+  const uniqueFilename = `${uuidv4()}-${file.originalname}`;
+  const params = {
+    Bucket: process.env.AWS_BUCKET_NAME2,
+    Key: `canvas-file/${uniqueFilename}`,
+    Body: file.buffer,
+    ContentType: file.mimetype
+  };
   try {
-    const boardId = req.params.boardId;
-    const canvasId = req.params.canvasId;
-    const workspaceId = req.params.workspaceId;
-    const xmlData = req.rawbody;
-    let canvas;
-    canvas = await Canvas.findByPk(canvasId,{
-      where:{ boardId: boardId },
-      attributes: ['id', 'canvasName', 'canvasData', 'boardId', 'workspaceId', 'userId', 'createdAt', 'updatedAt']
-    });
-
-    if (!canvas) {
-      return res.status(404).json({ error: 'Canvas not found' });
-    }
-    console.log("where");
-    canvas.canvasData = xmlData;
-    await canvas.save();
-
-    res.json({ canvas });
+    const data = await s3.upload(params).promise();
+    return data.Location;
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error uploading file to S3:', error);
+    throw error;
   }
 };
 
+const uploadCanvas = async (req, res) => {
+  const file = req.file;
+  console.log("Uploaded file: ", file);
+  const canvasId = req.params.canvasId;
+  const boardId = req.params.boardId;
+  const workspaceId = req.params.workspaceId;
+
+  if (!file) {
+    return res.status(400).send('No file uploaded.');
+  }
+
+  try {
+    const s3Result = await uploadToCanvasS3(file);
+    console.log("S3 Result:", s3Result);
+
+    const updateResult = await Canvas.update({ canvasData: s3Result }, { where: { id: canvasId, boardId: boardId, workspaceId: workspaceId } }); //this change
+    console.log("Update Result:", updateResult);
+
+    res.status(200).json({ message: 'Canvas data updated successfully', canvasDataUrl: s3Result });
+  } catch (error) {
+    console.error('Error in uploadCanvas:', error);
+    res.status(500).json({ error: 'Failed to upload canvas' });
+  }
+};
+
+const getCanvasDataById = async(req, res)=>{
+  try {
+    const canvasId = req.params.canvasId;
+    const boardId = req.params.boardId;
+    const workspaceId = req.params.workspaceId;
+    const canvas = await Canvas.findByPk(canvasId);
+    if (!canvas) {
+      return res.status(404).json({ message: 'Canvas not found' });
+    }
+    res.json(canvas);
+  } catch (error) {
+    console.error('Error fetching canvas:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
 module.exports = {
-    createCanvas,
-    getCanvases,
-    getCanvasById,
-    updateCanvas,
-    deleteCanvas,
-    saveCanvasData,
+  createCanvas,
+  getCanvases,
+  getCanvasById,
+  updateCanvas,
+  deleteCanvas,
+  //saveCanvasData,
+  uploadCanvas,
+  getCanvasDataById
 };
