@@ -1,15 +1,20 @@
 const { Comment,User } = require('../models');
+const { getIoInstance } = require('../sockets/socketIoInstance');
 
 const createComment = async (req, res) => {
     try {
-        const { text, canvasId, x, y } = req.body;
-        const parentId = 1; // how to handle this?
+        const { text, canvasId, x, y, parentId } = req.body;
         const userId = req.user.id;
+
         const newComment = await Comment.create({ text, canvasId, userId, parentId, x, y });
+
         const commentWithUser = await Comment.findByPk(newComment.id, {
-            include: [{ model: User }]
+            include: [{ model: User }, { model: Comment, as: 'replies' }]
         });
+
         if (commentWithUser) {
+            const io = getIoInstance();
+            io.emit('commentCreated', { comment: commentWithUser });
             res.status(201).json({ comment: commentWithUser });
         } else {
             res.status(404).json({ error: "Comment created but not found" });
@@ -23,11 +28,16 @@ const getCommentsByCanvas = async (req, res) => {
     try {
         const canvasId = req.params.canvasId;
         const comments = await Comment.findAll({
-            where: { canvasId },
+            where: { canvasId, parentId: null }, // Fetch only parent comments
             include: [{
                 model: User,
+            }, {
+                model: Comment,
+                as: 'replies',
+                include: [{ model: User }] // Include user details for replies
             }]
         });
+        
         if (comments && comments.length > 0) {
             res.json({ comments: comments });
         } else {
@@ -54,6 +64,8 @@ const updateComment = async (req, res) => {
         comment.x = x;
         comment.y = y;
         await comment.save();
+        const io = getIoInstance();
+        io.emit('commentUpdated', { comment });
         res.json({ comment });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -64,6 +76,8 @@ const deleteComment = async (req, res) => {
     try {
         const commentId = req.params.commentId;
         await Comment.destroy({ where: { id: commentId } });
+        const io = getIoInstance();
+        io.emit('commentDeleted', { commentId });
         res.json({ message: 'Comment deleted successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -82,6 +96,8 @@ const toggleCommentResolvedState = async (req, res) => {
         if (comment) {
             comment.resolved = !comment.resolved;
             await comment.save();
+            const io = getIoInstance();
+            io.emit('commentToggled', { message: `Comment ${comment.resolved ? 'resolved' : 'unresolved'} successfully`, comment });
             res.json({ message: `Comment ${comment.resolved ? 'resolved' : 'unresolved'} successfully`, comment });
         } else {
             res.status(404).json({ error: 'Comment not found' });
