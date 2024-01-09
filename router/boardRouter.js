@@ -10,7 +10,7 @@ router.put('/workspace/:workspaceId/board/:boardId', boardController.updateBoard
 router.delete('/workspace/:workspaceId/board/:boardId', boardController.deleteBoard);
 router.post('/workspace/:workspaceId/board/:boardId/members/:userId/add', boardController.addWorkspaceMember);
 router.get('/workspace/:workspaceId/board/:boardId/members', boardController.getBoardMembers);
-router.delete('/workspace/:workspaceId/board/:boardId/members/:userId/delete', boardController.deleteWorkspaceMember);
+router.delete('/workspace/:workspaceId/board/:boardId/members/:userId/delete', boardController.deleteBoardMember);
 router.get('/:boardId/members/:userId', boardController.checkBoardMember);
 
 module.exports = router;

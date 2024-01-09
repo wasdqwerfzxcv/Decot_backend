@@ -122,31 +122,6 @@ const deleteCanvas = async (req, res) => {
   }
 };
 
-// const saveCanvasData = async (req, res) => {
-//   try {
-//     const boardId = req.params.boardId;
-//     const canvasId = req.params.canvasId;
-//     const workspaceId = req.params.workspaceId;
-//     const xmlData = req.rawbody;
-//     let canvas;
-//     canvas = await Canvas.findByPk(canvasId,{
-//       where:{ boardId: boardId },
-//       attributes: ['id', 'canvasName', 'canvasData', 'boardId', 'workspaceId', 'userId', 'createdAt', 'updatedAt']
-//     });
-
-//     if (!canvas) {
-//       return res.status(404).json({ error: 'Canvas not found' });
-//     }
-//     console.log("hi where");
-//     canvas.canvasData = xmlData;
-//     await canvas.save();
-
-//     res.json({ canvas });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
-
 const uploadToCanvasS3 = async (file) => {
   const uniqueFilename = `${uuidv4()}-${file.originalname}`;
   const params = {
@@ -194,11 +169,17 @@ const getCanvasDataById = async(req, res)=>{
     const canvasId = req.params.canvasId;
     const boardId = req.params.boardId;
     const workspaceId = req.params.workspaceId;
-    const canvas = await Canvas.findByPk(canvasId);
+    const canvas = await Canvas.findByPk(canvasId,{
+      where:{
+        boardId: boardId,
+        workspaceId: workspaceId,
+      },
+      attributes: ['id', 'canvasName', 'canvasData', 'userId', 'boardId', 'workspaceId', 'createdAt', 'updatedAt']
+    });
     if (!canvas) {
       return res.status(404).json({ message: 'Canvas not found' });
     }
-    res.json(canvas);
+    res.json({ canvasData: canvas.canvasData });
   } catch (error) {
     console.error('Error fetching canvas:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -211,7 +192,6 @@ module.exports = {
   getCanvasById,
   updateCanvas,
   deleteCanvas,
-  //saveCanvasData,
   uploadCanvas,
   getCanvasDataById
 };

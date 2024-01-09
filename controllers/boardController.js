@@ -217,7 +217,7 @@ const getBoardMembers = async (req, res) => {
   }
 };
 
-const deleteWorkspaceMember = async (req, res) => {
+const deleteBoardMember = async (req, res) => {
   try {
     const workspaceId = req.params.workspaceId;
     const boardId = req.params.boardId;
@@ -241,7 +241,7 @@ const deleteWorkspaceMember = async (req, res) => {
     }
     console.log(user);
     console.log(boardId, userId, "delete");
-    const data = await board.deleteMember(user);
+    const data = await board.removeMember(user);
     console.log(data)
 
     // Save notification in the database
@@ -292,6 +292,6 @@ module.exports = {
   deleteBoard,
   addWorkspaceMember,
   getBoardMembers,
-  deleteWorkspaceMember,
+  deleteBoardMember,
   checkBoardMember,
 };
