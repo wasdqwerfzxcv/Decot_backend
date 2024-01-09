@@ -1,4 +1,4 @@
-const { Workspace, User, Board } = require('../models');
+const { Workspace, User, Board, Comment, Canvas } = require('../models');
 const sequelize = require('sequelize');
 
 const getMenteeAnalysisData = async (req, res) => {
@@ -32,7 +32,6 @@ const calculateEngagementRate = async (workspaceId) => {
   activeThreshold.setDate(activeThreshold.getDate() - 3); // Consider active if accessed in the last 3 days
 
   try {
-    // Fetch all mentees in the workspace
     const mentees = await User.findAll({
       include: [{
         model: Workspace,
@@ -42,19 +41,66 @@ const calculateEngagementRate = async (workspaceId) => {
       attributes: ['id', 'username', 'lastAccessed']
     });
 
-    // Calculate engagement rate for each mentee
+    const totalCommentsByMentees = await Comment.count({
+      include: [{
+        model: Canvas,
+        attributes: [],
+        required: true,
+        include: [{
+          model: Board,
+          as: 'board',
+          attributes: [],
+          where: { workspaceId },
+          required: true,
+        }],
+      }, {
+        model: User,
+        attributes: [],
+        required: true,
+        where: {
+          role: 'mentee'
+        }
+      }],
+    });
+    
+
+    const comments = await Comment.findAll({
+      include: [{
+        model: Canvas,
+        attributes: [],
+        include: [{
+          model: Board,
+          as: 'board',
+          attributes: [],
+          where: { workspaceId },
+        }],
+      }],
+      attributes: [
+        [sequelize.col('Comment.userId'), 'userId'], 
+        [sequelize.fn('COUNT', sequelize.col('Comment.id')), 'commentCount']
+      ],
+      group: [sequelize.col('Comment.userId')],
+      raw: true,
+    });
+
+    const commentMap = new Map(comments.map(comment => [comment.userId, comment.commentCount]));
+
     const menteeEngagementRates = mentees.map(mentee => {
-      const isEngaged = mentee.lastAccessed && mentee.lastAccessed >= activeThreshold;
+      const isEngaged = mentee.lastAccessed && new Date(mentee.lastAccessed) >= activeThreshold;
+      const commentCount = commentMap.get(mentee.id) || 0;
+      const activeScore = isEngaged ? 30 : 0;
+      const commentScore = (commentCount / totalCommentsByMentees) * 70;
+      const totalScore = Math.min(activeScore + commentScore, 100);
+
       return {
         menteeId: mentee.id,
         username: mentee.username,
-        engagementRate: isEngaged ? 100 : 0 // 100% if engaged, 0% if not
+        engagementRate: totalScore
       };
     });
 
-    // Optionally, calculate the overall engagement rate
     const overallEngagementRate = menteeEngagementRates.length > 0
-      ? (menteeEngagementRates.filter(mentee => mentee.engagementRate === 100).length / menteeEngagementRates.length) * 100
+      ? menteeEngagementRates.reduce((acc, mentee) => acc + mentee.engagementRate, 0) / menteeEngagementRates.length
       : 0;
 
     return {
