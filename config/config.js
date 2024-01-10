@@ -1,4 +1,4 @@
-const fs = require('fs');
+const sslCertificate = process.env.DATABASE_SSL.replace(/\\n/g, '\n');
 
 module.exports = {
   development: {
@@ -11,7 +11,7 @@ module.exports = {
       ssl: {
         require: true,
         rejectUnauthorized: true,
-        ca: fs.readFileSync(process.env.DATABASE_SSL).toString()
+        ca: sslCertificate
       }
     }
   },
@@ -25,7 +25,7 @@ module.exports = {
       ssl: {
         require: true,
         rejectUnauthorized: true,
-        ca: fs.readFileSync(process.env.DATABASE_SSL).toString()
+        ca: sslCertificate
       }
     }
   },
@@ -39,7 +39,7 @@ module.exports = {
       ssl: {
         require: true,
         rejectUnauthorized: true,
-        ca: fs.readFileSync(process.env.DATABASE_SSL).toString()
+        ca: sslCertificate
       }
     }
   }

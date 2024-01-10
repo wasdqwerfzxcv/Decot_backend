@@ -1,5 +1,5 @@
 const { Sequelize } = require('sequelize');
-const fs = require('fs');
+const sslCertificate = process.env.DATABASE_SSL.replace(/\\n/g, '\n');
 
 const sequelize = new Sequelize(process.env.DATABASE_NAME, process.env.DATABASE_USERNAME, process.env.DATABASE_PASSWORD, {
   host: process.env.DATABASE_HOST,
@@ -8,7 +8,7 @@ const sequelize = new Sequelize(process.env.DATABASE_NAME, process.env.DATABASE_
     ssl: {
       require: true,
       rejectUnauthorized: true,
-      ca: fs.readFileSync(process.env.DATABASE_SSL).toString()
+      ca: sslCertificate
     }
   }
 });
