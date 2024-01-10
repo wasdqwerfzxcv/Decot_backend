@@ -54,6 +54,11 @@ app.use('/canvas', authenticate, canvasRoutes);
 app.use('/comment', authenticate, commentRoutes);
 app.use('/stickyNote', authenticate, stickyNoteRoutes);
 
-server.listen(PORT, async () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// for testing purpose
+if (require.main === module) {
+  server.listen(PORT, async () => {
+      console.log(`Server is running on port ${PORT}`);
+  });
+} else {
+  module.exports = app;
+}
