@@ -36,11 +36,12 @@ jobs:
           DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
           DATABASE_SSL: ${{ secrets.DATABASE_SSL }}
 
-      - name: Deploy to Azure Web App
+      - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v2
+        id: deploy-to-webapp
         with:
           app-name: 'Decot'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_178F2547B6D54BCB8E7F48AED520EA50 }}
-          package: node-app.tar.gz
+          package: .
 
