@@ -1,10 +1,16 @@
 const { Sequelize } = require('sequelize');
+const fs = require('fs');
 
-const sequelize = new Sequelize('Decot', 'postgres', '0173149883', {
-  host: '127.0.0.1',
-  dialect: 'postgres', // Replace with your preferred SQL dialect (e.g., mysql, postgres, etc.)
+const sequelize = new Sequelize(process.env.DATABASE_NAME, process.env.DATABASE_USERNAME, process.env.DATABASE_PASSWORD, {
+  host: process.env.DATABASE_HOST,
+  dialect: 'postgres',
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: true,
+      ca: fs.readFileSync(process.env.DATABASE_SSL).toString()
+    }
+  }
 });
 
-module.exports = {
-  sequelize,
-};
+module.exports = { sequelize };
