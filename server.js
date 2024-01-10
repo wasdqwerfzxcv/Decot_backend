@@ -27,7 +27,7 @@ setupSockets(io);
 
 const PORT = process.env.PORT || 5000;
 const corsOptions = {
-  origin: ['http://localhost:3000', 'http://localhost:5000', 'https://yourapp.azurewebsites.net',
+  origin: ['http://localhost:3000', 'http://localhost:5000', 'https://decot.azurewebsites.net',
     'https://sg1.sso.azurewebsites.windows.net'],
   optionsSuccessStatus: 200
 }
