@@ -27,7 +27,8 @@ setupSockets(io);
 
 const PORT = process.env.PORT || 5000;
 const corsOptions = {
-  origin: ['http://localhost:3000', 'http://localhost:5000', 'https://decot.azurewebsites.net',
+  origin: ['http://localhost:3000', 'https://calm-meadow-00cfcca00.4.azurestaticapps.net/',
+    'http://localhost:5000', 'https://decot.azurewebsites.net',
     'https://sg1.sso.azurewebsites.windows.net'],
   optionsSuccessStatus: 200
 }
@@ -57,7 +58,7 @@ app.use('/stickyNote', authenticate, stickyNoteRoutes);
 // for testing purpose
 if (require.main === module) {
   server.listen(PORT, async () => {
-      console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
   });
 } else {
   module.exports = app;
