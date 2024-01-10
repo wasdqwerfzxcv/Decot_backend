@@ -18,7 +18,9 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: [
+      "http://localhost:3000",
+      "https://calm-meadow-00cfcca00.4.azurestaticapps.net"],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
   }
 });
