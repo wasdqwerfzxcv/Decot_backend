@@ -1,4 +1,6 @@
-const { sequelize, Board, User, Canvas } = require('../models');
+const { sequelize, Board, User, Canvas, Workspace, Notification } = require('../models');
+const { getIoInstance } = require('../sockets/socketIoInstance');
+const { getSocketIdByUserId } = require('../sockets/socketManager');
 
 const createBoard = async (req, res) => {
   try {
@@ -119,7 +121,7 @@ const deleteBoard = async (req, res) => {
     const workspaceId = req.params.workspaceId;
 
     await Canvas.destroy({
-      where: {boardId: boardId},
+      where: { boardId: boardId },
       attributes: ['id', 'canvasName', 'canvasData', 'userId', 'boardId', 'workspaceId', 'createdAt', 'updatedAt']
     })
 
@@ -129,8 +131,8 @@ const deleteBoard = async (req, res) => {
     });
 
     let board;
-    board = await Board.findByPk(boardId,{
-      where:{ workspaceId: workspaceId },
+    board = await Board.findByPk(boardId, {
+      where: { workspaceId: workspaceId },
       include: [
         {
           model: User,
@@ -158,10 +160,11 @@ const addWorkspaceMember = async (req, res) => {
     const workspaceId = req.params.workspaceId;
     const boardId = req.params.boardId;
     const userId = req.params.userId;
-    //const io = getIoInstance();
+    const io = getIoInstance();
+    const workspace = await Workspace.findByPk(workspaceId);
 
     let board;
-    board = await Board.findByPk(boardId,{
+    board = await Board.findByPk(boardId, {
       where: { workspaceId: workspaceId },
       attributes: ['id', 'boardTitle', 'dtTag', 'deadline', 'description', 'mentorId', 'workspaceId', 'createdAt', 'updatedAt', 'status']
     });
@@ -176,14 +179,14 @@ const addWorkspaceMember = async (req, res) => {
     console.log(data)
 
     // Save notification in the database
-    // const notification = await Notification.create({
-    //   content: `You have been added to ${board.boardTitle} board`,
-    //   userId: user.id,
-    // });
+    const notification = await Notification.create({
+      content: `You have been added to ${board.boardTitle} board in ${workspace.name}`,
+      userId: user.id,
+    });
 
     // // Emit notification to mentee using getSocketIdByUserId
-    // const menteeSocketId = getSocketIdByUserId(userId);
-    // io.to(menteeSocketId).emit('notification', notification);
+    const menteeSocketId = getSocketIdByUserId(userId);
+    io.to(menteeSocketId).emit('notification', notification);
 
     res.status(200).json({ message: 'Member added successfully' });
   } catch (error) {
@@ -222,10 +225,11 @@ const deleteBoardMember = async (req, res) => {
     const workspaceId = req.params.workspaceId;
     const boardId = req.params.boardId;
     const userId = req.params.userId;
-    //const io = getIoInstance();
+    const io = getIoInstance();
+    const workspace = await Workspace.findByPk(workspaceId);
 
     let board;
-    board = await Board.findByPk(boardId,{
+    board = await Board.findByPk(boardId, {
       where: { workspaceId: workspaceId },
       attributes: ['id', 'boardTitle', 'dtTag', 'deadline', 'description', 'mentorId', 'workspaceId', 'createdAt', 'updatedAt', 'status']
     });
@@ -239,20 +243,18 @@ const deleteBoardMember = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
-    console.log(user);
-    console.log(boardId, userId, "delete");
+
     const data = await board.removeMember(user);
-    console.log(data)
 
     // Save notification in the database
-    // const notification = await Notification.create({
-    //   content: `You have been added to ${board.boardTitle} board`,
-    //   userId: user.id,
-    // });
+    const notification = await Notification.create({
+      content: `You have been removed from ${board.boardTitle} board in ${workspace.name}`,
+      userId: user.id,
+    });
 
     // // Emit notification to mentee using getSocketIdByUserId
-    // const menteeSocketId = getSocketIdByUserId(userId);
-    // io.to(menteeSocketId).emit('notification', notification);
+    const menteeSocketId = getSocketIdByUserId(userId);
+    io.to(menteeSocketId).emit('notification', notification);
 
     res.status(200).json({ message: 'Member deleted successfully' });
   } catch (error) {
@@ -275,7 +277,7 @@ const checkBoardMember = async (req, res) => {
 
     if (result.length > 0) {
       res.status(200).json({ isMember: true });
-    }else{
+    } else {
       res.status(200).json({ isMember: false });
     }
   } catch (error) {
