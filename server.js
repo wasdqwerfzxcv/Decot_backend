@@ -27,9 +27,8 @@ setupSockets(io);
 
 const PORT = process.env.PORT || 5000;
 const corsOptions = {
-  origin: ['http://localhost:3000', 'https://calm-meadow-00cfcca00.4.azurestaticapps.net/',
-    'http://localhost:5000', 'https://decot.azurewebsites.net',
-    'https://sg1.sso.azurewebsites.windows.net'],
+  origin: ['http://localhost:3000', 'https://calm-meadow-00cfcca00.4.azurestaticapps.net',
+    'http://localhost:5000', 'https://decot-41f64098cefb.herokuapp.com'],
   optionsSuccessStatus: 200
 }
 
