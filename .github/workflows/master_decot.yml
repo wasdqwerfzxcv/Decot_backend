@@ -37,7 +37,7 @@ jobs:
           DATABASE_SSL: ${{ secrets.DATABASE_SSL }}
 
       - name: Archive production dependencies
-        run: tar -czf node-app.tar.gz .
+        run: tar --exclude='node_modules' --exclude='path/to/temporary/files' -czf node-app.tar.gz .
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
