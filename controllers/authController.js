@@ -78,9 +78,9 @@ const googleCallback = (req, res, next) => {
       return res.redirect('/login');
     }
     const token = jwt.sign({ userId: user.id, role: user.role }, secretKey, { expiresIn: '2h' });
-    res.cookie('jwt', token, { httpOnly: true, secure: true });
-    
-    return res.redirect(callbackRedirectUrl);
+    const redirectUrl = `${callbackRedirectUrl}?token=${token}&user=${JSON.stringify(user)}`;
+
+    return res.redirect(redirectUrl);
     
   })(req, res, next);
 };
