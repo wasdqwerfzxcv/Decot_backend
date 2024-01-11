@@ -1,3 +1,4 @@
+require('dotenv').config();
 const sslCertificate = process.env.DATABASE_SSL.replace(/\\n/g, '\n');
 
 module.exports = {
