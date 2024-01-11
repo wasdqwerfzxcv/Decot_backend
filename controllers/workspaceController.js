@@ -7,7 +7,7 @@ const createWorkspace = async (req, res) => {
   try {
     const { name, description, color } = req.body;
     const joinToken = crypto.randomBytes(4).toString('hex');
-    const baseUrl = 'https://decot-frontend-git-main-wasdqwerfzxcv.vercel.app';
+    const baseUrl = 'https://decot-frontend.vercel.app';
     const inviteLink = `${baseUrl}/join/${joinToken}`;
 
     const workspace = await Workspace.create({
