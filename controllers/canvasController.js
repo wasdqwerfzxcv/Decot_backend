@@ -5,7 +5,6 @@ const { v4: uuidv4 } = require('uuid');
 
 const createCanvas = async (req, res) => {
   try {
-    console.log("creating canvas")
     const boardId= req.params.boardId;
     const workspaceId= req.params.workspaceId;
     const { canvasName } = req.body; 
@@ -19,7 +18,6 @@ const createCanvas = async (req, res) => {
       
       returning:['id', 'canvasName', 'userId', 'boardId', 'workspaceId', 'createdAt', 'updatedAt']
     });
-    console.log(boardId);
     res.status(201).json({ canvas });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -28,7 +26,6 @@ const createCanvas = async (req, res) => {
 
 const getCanvases = async (req, res) => {
   try {
-    //const userId = req.user.id;
     const boardId = req.params.boardId;
     const workspaceId = req.params.workspaceId;
     console.log(boardId);
@@ -141,7 +138,6 @@ const uploadToCanvasS3 = async (file) => {
 
 const uploadCanvas = async (req, res) => {
   const file = req.file;
-  console.log("Uploaded file: ", file);
   const canvasId = req.params.canvasId;
   const boardId = req.params.boardId;
   const workspaceId = req.params.workspaceId;

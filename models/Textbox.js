@@ -2,14 +2,14 @@
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-    class Text extends Model {
+    class Textbox extends Model {
         static associate(models) {
-            Text.belongsTo(models.User, { foreignKey: 'userId' });
-            Text.belongsTo(models.Canvas, { foreignKey: 'canvasId' });
+            Textbox.belongsTo(models.User, { foreignKey: 'userId' });
+            Textbox.belongsTo(models.Canvas, { foreignKey: 'canvasId' });
         }
     }
 
-    Text.init({
+    Textbox.init({
         text: DataTypes.TEXT,
         userId: DataTypes.INTEGER,
         canvasId: DataTypes.INTEGER,
@@ -19,16 +19,6 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: 0
         },
         y: {
-            type: DataTypes.FLOAT,
-            allowNull: false,
-            defaultValue: 0
-        },
-        width: {
-            type: DataTypes.FLOAT,
-            allowNull: false,
-            defaultValue: 0
-        },
-        height: {
             type: DataTypes.FLOAT,
             allowNull: false,
             defaultValue: 0
@@ -45,8 +35,8 @@ module.exports = (sequelize, DataTypes) => {
         },
     }, {
         sequelize,
-        modelName: 'Text',
+        modelName: 'Textbox',
     });
 
-    return Text;
+    return Textbox;
 };
