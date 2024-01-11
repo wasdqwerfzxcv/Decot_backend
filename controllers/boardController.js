@@ -4,7 +4,6 @@ const { getSocketIdByUserId } = require('../sockets/socketManager');
 
 const createBoard = async (req, res) => {
   try {
-    console.log("creating board")
     const workspaceId = req.params.workspaceId;
     const { boardTitle, dtTag, deadline, description, status } = req.body;
 
@@ -47,9 +46,7 @@ const joinBoard = async (req, res) => {
 
 const getBoards = async (req, res) => {
   try {
-    //const userId = req.user.id;
     const workspaceId = req.params.workspaceId;
-    console.log(workspaceId);
 
     if (isNaN(parseInt(workspaceId))) {
       return res.status(400).json({ error: 'Invalid workspaceId' });
@@ -173,7 +170,6 @@ const addWorkspaceMember = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
-    console.log(user);
 
     const data = await board.addMember(user);
     console.log(data)

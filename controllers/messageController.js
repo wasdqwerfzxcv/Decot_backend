@@ -20,7 +20,6 @@ const createMessage = async(req, res)=>{
             attributes:['id', 'message', 'userId', 'timestamp', 'createdAt', 'updatedAt', 'workspaceId']
         })
         //io.emit('send_message', msg)
-        console.log(msg)
         if(messageWithUser){
             res.status(201).json({message: messageWithUser });
         }else{
@@ -35,10 +34,8 @@ const createMessage = async(req, res)=>{
 
 const getAllMessages = async (req,res)=>{
     try{
-        const userId = req.user.id;
         const workspaceId = req.params.workspaceId;
         console.log(workspaceId);
-        //console.log('hihi',userId)
 
         if (isNaN(parseInt(workspaceId))) {
             return res.status(400).json({ error: 'Invalid workspaceId' });
@@ -63,23 +60,6 @@ const getAllMessages = async (req,res)=>{
     }
 };
 
-// const updateMessage = async (req,res)=>{
-//     try{
-//         const { id }=req.params;
-//         const { message }=req.body;
-//         const messageToUpdate=await Message.findByPk(id);
-//         if(!messageToUpdate){
-//             return res.status(404).json({ error: 'Message not found'});
-//         }
-//         messageToUpdate.message = message;
-//         await messageToUpdate.save();
-//         res.json(messageToUpdate);
-//     }catch(error){
-//         console.error('Error updating message: ', error);
-//         res.status(500).json({ error: 'Error occured while updating the message' });
-//     }
-// };
-
 const deleteMessage = async (req,res)=>{
     try{
         const messageId = req.params.messageId;
@@ -94,7 +74,6 @@ const deleteMessage = async (req,res)=>{
             return res.status(404).json({ error: 'Message not found' });
           }
         await message.destroy();
-        //io.emit('message_deleted', messageId);
         res.json({ message: 'Message deleted successfully' });
     }catch(error){
         console.error('Error deleting message: ', error);

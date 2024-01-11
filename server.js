@@ -13,6 +13,7 @@ const boardRoutes = require('./router/boardRouter');
 const canvasRoutes = require('./router/canvasRouter');
 const commentRoutes = require('./router/commentRouter');
 const stickyNoteRoutes = require('./router/stickyNoteRouter');
+const textboxRoutes = require('./router/textboxRouter');
 
 const app = express();
 const server = require('http').createServer(app);
@@ -58,6 +59,7 @@ app.use('/notification', authenticate, notificationRoutes);
 app.use('/canvas', authenticate, canvasRoutes);
 app.use('/comment', authenticate, commentRoutes);
 app.use('/stickyNote', authenticate, stickyNoteRoutes);
+app.use('/textbox', authenticate, textboxRoutes);
 
 // for testing purpose
 if (require.main === module) {
