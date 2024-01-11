@@ -19,8 +19,12 @@ const setupSockets = (io) => {
       // Add more actions here if needed
       updateUserStatus(userId, 'online');
     });
-    
-    socket.on('disconnect', () => {
+
+    socket.on('commentPositionChange', (data) => {
+      socket.broadcast.emit('commentPositionChange', data);
+    });
+
+    socket.on('disconnect', () => {ffffffffff
       updateUserStatus(userId, 'offline');
       removeUser(userId);
     });
