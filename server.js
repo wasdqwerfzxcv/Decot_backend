@@ -21,7 +21,7 @@ const io = require('socket.io')(server, {
     origin: [
       "http://localhost:3000",
       "https://calm-meadow-00cfcca00.4.azurestaticapps.net",
-      "https://decot-frontend-eesm9gppf-wasdqwerfzxcv.vercel.app"
+      "https://decot-frontend-gifupcu1x-wasdqwerfzxcv.vercel.app"
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
   }
@@ -32,7 +32,7 @@ setupSockets(io);
 const PORT = process.env.PORT || 5000;
 const corsOptions = {
   origin: ['http://localhost:3000', 'https://calm-meadow-00cfcca00.4.azurestaticapps.net',
-    'https://decot-frontend-eesm9gppf-wasdqwerfzxcv.vercel.app',
+    'https://decot-frontend-gifupcu1x-wasdqwerfzxcv.vercel.app',
     'http://localhost:5000', 'https://decot-41f64098cefb.herokuapp.com'],
   optionsSuccessStatus: 200
 }
