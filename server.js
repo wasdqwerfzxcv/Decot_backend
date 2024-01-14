@@ -34,7 +34,7 @@ const PORT = process.env.PORT || 5000;
 const corsOptions = {
   origin: ['http://localhost:3000', 'https://calm-meadow-00cfcca00.4.azurestaticapps.net',
     'https://decot-frontend.vercel.app',
-    'http://localhost:5000', 'https://decot-41f64098cefb.herokuapp.com'],
+    'http://localhost:5000', 'https://decot-518a73edea89.herokuapp.com'],
   optionsSuccessStatus: 200
 }
 
