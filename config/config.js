@@ -1,6 +1,3 @@
-require('dotenv').config();
-const sslCertificate = process.env.DATABASE_SSL.replace(/\\n/g, '\n');
-
 module.exports = {
   development: {
     username: process.env.DATABASE_USERNAME,
@@ -11,8 +8,7 @@ module.exports = {
     dialectOptions: {
       ssl: {
         require: true,
-        rejectUnauthorized: true,
-        ca: sslCertificate
+        rejectUnauthorized: false,
       }
     }
   },
@@ -25,8 +21,7 @@ module.exports = {
     dialectOptions: {
       ssl: {
         require: true,
-        rejectUnauthorized: true,
-        ca: sslCertificate
+        rejectUnauthorized: false,
       }
     }
   },
@@ -39,8 +34,7 @@ module.exports = {
     dialectOptions: {
       ssl: {
         require: true,
-        rejectUnauthorized: true,
-        ca: sslCertificate
+        rejectUnauthorized: false,
       }
     }
   }
